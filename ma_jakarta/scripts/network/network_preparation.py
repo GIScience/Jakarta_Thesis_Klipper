@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from __init__ import speed_limits_yaml
 import osmnx as ox
 import networkx as nx
+import networkit as nkit
+import yaml
 import rtree
 import pandas as pd
 import geopandas as gpd
@@ -85,3 +88,35 @@ def flood_intersection(graph, flood_layer, output):
     print('Intersected networkx graph saved')
 
     return graph
+
+
+def create_weighted_graph(nx_graph):
+    """Create weighted and directed NetworKit graph. Weight is defined by needed travel duration for each road by
+    km / speed limit.
+    :param nx_graph: Networkx graph with information about road type and road length
+    :return: Weighted and directed NetworKit graph
+    """
+    # convert to weighted and directed NetworKit graph
+    nkit_graph = nkit.nxadapter.nx2nk(nx_graph)
+    nkit_edges = nkit_graph.edges()
+    graph_weighted_directed = nkit.Graph(nkit_graph.numberOfNodes(), weighted=True, directed=True)
+
+    # Openrouteservice yaml file with defined speed limits for each road type
+    with open(speed_limits_yaml) as speed_limit_file:
+        speed_limit = yaml.load(speed_limit_file, Loader=yaml.FullLoader)
+
+        for edge, highway, length in zip(nkit_edges, [w[2] for w in nx_graph.edges.data('highway')],
+                                         [float(w[2]) for w in nx_graph.edges.data('length')]):
+            try:
+                weight = (length / 1000) / speed_limit[highway]
+            except KeyError:
+                # in some cases two road types are defined for one road -> take the first one
+                weight = (length / 1000) / speed_limit[highway.strip('][').split('\'')[1]]
+
+            # add edges and weight to new, empty nkit graph
+            graph_weighted_directed.addEdge(edge[0], edge[1], weight)
+
+    nkit.overview(graph_weighted_directed)
+
+    print('Created weighted NetworKit graph.')
+    return graph_weighted_directed

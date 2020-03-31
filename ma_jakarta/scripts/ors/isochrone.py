@@ -5,13 +5,13 @@ from shapely import ops
 import fiona as fn
 import pandas as pd
 import geopandas as gpd
-
-# isochrone request
-# clip with flood layer
+import logging
 
 
 def iso_request(api_key, amenities, output):
     """"""
+
+    logging.info('Make sure to first build correct ORS graph! E.g. floodprone graph for floodprone isochrone request.')
 
     # using my local openrouteservice package with the manually created routing graph
     clnt = client.Client(base_url='http://localhost:8080/ors', key=api_key)

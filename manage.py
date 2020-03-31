@@ -3,11 +3,12 @@ from __init__ import flooded_shp, floodprone_input, floodprone_shp, \
     amenity_data, jakarta_border, jakarta_border_fn, \
     amenity_data_fn, amenities_all, amenities_prone, amenities_flooded, \
     pop_raster, pop_raster_extract, \
-    network_path, network_flooded, network_prone, \
+    network_path, network_normal, network_flooded, network_prone, \
     api_key, iso_normal, iso_prone, iso_flooded
 
 from ma_jakarta.scripts.data_preprocessing import flooprone, amenities, population
 from ma_jakarta.scripts.network import network_preparation
+from ma_jakarta.scripts.network.network_analysis import centrality, node_difference
 from ma_jakarta.scripts.ors import graph_preparation, isochrone
 
 from os import path
@@ -47,20 +48,46 @@ else:
     logging.info(pop_raster_extract, 'already exists.')
 
 
-# network
+# TODO: check if files will be opened.
+# network preparation and analysis
+# normal
 network_graph = network_preparation.download_network('Jakarta, Indonesia', 'drive', 'normal', network_path)
-network_preparation.flood_intersection(network_graph, floodprone_shp, network_prone)
-network_preparation.flood_intersection(network_graph, flooded_shp, network_flooded)
+weighted_normal = network_preparation.create_weighted_graph(network_normal)
+centrality.Centrality(weighted_normal, 'Betweenness').run()
+centrality.Centrality(weighted_normal, 'Harmonic_Closeness').run()
+
+# floodprone
+nx_prone = network_preparation.flood_intersection(network_graph, floodprone_shp, network_prone)
+weighted_prone = network_preparation.create_weighted_graph(nx_prone)
+btwn_prone_graph = centrality.Centrality(weighted_prone, 'Betweenness').run()
+cls_prone_graph = centrality.Centrality(weighted_prone, 'Harmonic_Closeness').run()
+
+# TODO:
+try:
+    node_difference.calculate_node_difference(network_normal, cls_prone_graph, 'btwn')
+    node_difference.calculate_node_difference(network_normal, cls_prone_graph, 'cls')
+except Exception:
+    node_difference.calculate_node_difference(network_normal, btwn_prone_graph, 'btwn')
+    node_difference.calculate_node_difference(network_normal, btwn_prone_graph, 'cls')
+finally:
+    node_difference.calculate_node_difference(network_normal, network_prone, 'btwn')
+    node_difference.calculate_node_difference(network_normal, network_prone, 'cls')
+
+# flooded
+# nx_flooded = network_preparation.flood_intersection(network_graph, flooded_shp, network_flooded)
+# weighted_flooded = network_preparation.create_weighted_graph(nx_flooded)
+# centrality.Centrality(weighted_flooded, 'Betweenness').run()
+# centrality.Centrality(weighted_flooded, 'Harmonic_Closeness').run()
 
 # ors
-file_converter = graph_preparation.ORSGraphPrep(network_prone, 'floodprone').convert()
+# file_converter = graph_preparation.ORSGraphPrep(network_prone, 'floodprone').convert()
 
 # adjust docker-compose.yml: OSM_FILE and volumes
 # make sure there is no docker/graph folder existing.
 # If, rename to e.g. graphs_floodprone to keep data. ORS builds graph from "graphs" folder
 # in folder openrouteservice/docker: docker-compose up -d
 
-logging.info('Make sure to first build correct ORS graph! E.g. floodprone graph for floodprone isochrone request.')
-isochrone.iso_request(api_key, amenities_all, iso_normal)
+
+# isochrone.iso_request(api_key, amenities_all, iso_normal)
 # isochrone.iso_request(api_key, amenities_prone, iso_prone)
 # isochrone.iso_request(api_key, amenities_flooded, iso_flooded)

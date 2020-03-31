@@ -4,7 +4,26 @@ import geopandas as gpd
 from shapely.geometry import Point
 import pandas as pd
 import networkx as nx
+import subprocess
+import logging
 import node_dif_cython
+
+
+def build_cython():
+    """"""
+    try:
+        cmd = 'python setup.py build_ext --inplace'
+        proc = subprocess.Popen(cmd,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT,
+                                shell=True)
+        return_code = proc.wait()
+        if return_code:
+            raise subprocess.CalledProcessError(return_code, cmd)
+
+        logging.info('Cython file successfully built.')
+    except Exception as err:
+        print(err)
 
 
 def calculate_node_difference(normal_graph, flood_graph, centrality):

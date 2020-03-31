@@ -5,6 +5,8 @@ import fiona as fn
 import rasterio
 
 BASEDIR = path.join(path.abspath(path.dirname(__file__)))
+# Openrouteservice yaml file with defined speed limits for each road type
+speed_limits_yaml = path.join(BASEDIR, 'ma_jakarta/scripts/network/speed_limits.yaml')
 
 # input
 jakarta_border = gpd.read_file(path.join(BASEDIR, 'ma_jakarta/data/input/jakarta_border.geojson'))
@@ -30,8 +32,9 @@ pop_raster_extract = path.join(BASEDIR, 'ma_jakarta/data/preprocessed/idn_ppp_20
 
 # network
 network_path = path.join(BASEDIR, 'ma_jakarta/network_graphs')
-network_prone = path.join(BASEDIR, 'ma_jakarta/network_graphs/floodprone')
-network_flooded = path.join(BASEDIR, 'ma_jakarta/network_graphs/flooded')
+network_normal = path.join(network_path, 'normal')
+network_prone = path.join(network_path, 'floodprone')
+network_flooded = path.join(network_path, 'flooded')
 
 
 # ors
