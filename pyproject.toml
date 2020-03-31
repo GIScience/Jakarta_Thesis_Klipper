@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "ma-jakarta"
+version = "0.1.0"
+description = ""
+authors = ["Isabell Klipper"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+fiona = "^1.8.13"
+osmnx = "^0.11.4"
+pandas = "^1.0.1"
+networkx = "^2.4"
+numpy = "^1.18.1"
+shapely = "^1.7.0"
+geopandas = "^0.7.0"
+rtree = "^0.9.4"
+matplotlib = "^3.2.0"
+openrouteservice = "^2.2.3"
+cython = "^0.29.15"
+cmake = "^3.16.3"
+networkit = "^6.1"
+IPython = "^7.13.0"
+gdal = "^3.0.4"
+pyyaml = "^5.3"
+ogr2osm = {git = "https://github.com/pnorman/ogr2osm"}
+rasterio = "^1.1.3"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
