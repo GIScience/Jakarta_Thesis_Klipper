@@ -1,10 +1,13 @@
+# Working process!
+
+
 ## Installation
 
 - `git clone https://gitlab.com/isikl/ma.git`
 
 - `cd ma`
 
-# install poetry: https://python-poetry.org/docs/
+## install poetry: https://python-poetry.org/docs/
 - `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
 
 - To activate poetry command, run the following command: `source $HOME/.poetry/env`
@@ -12,10 +15,10 @@
 - `poetry install`
 
 
-# install docker 
+## install docker 
 
 
-# install and run ors
+## install and run ors
 - `cd ma-jakarta`
 
 - `git clone https://github.com/GIScience/openrouteservice.git `
