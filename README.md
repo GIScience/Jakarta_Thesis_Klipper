@@ -58,3 +58,37 @@ ERROR:fiona._env:Unable to open EPSG support file gcs.csv.  Try setting the GDAL
 
 GDAL_DATA="/home/isabell/Workspace/test/ma/ma-jakarta/data/idn_ppp_2020.tif" 
 
+
+### file declaration
+- complete/normal/daily scenario graph must be named `normal`
+
+- for further graph scenarios: make sure the graph holds the same name as the preprocessed intersection flood file in `settings.yml`, 
+e.g. `floodprone`: graph name: `network_graphs/floodprone` and flood layer: `floodprone: 'preprocessed/floodprone.shp'`
+
+
+### run
+
+#### data preprocessing
+run once to preprocess data: `python ma_jakarta/scripts/data_preprocessing/run_preprocessing.py`
+
+
+#### network data 
+run once to download network data `python ma_jakarta/scripts/network/download_network.py 'Jakarta, Indonesia' 'drive' 'normal' 'ma_jakarta/network_graphs'`
+
+- where `Jakarta, Indonesia`  defines the data for the desired place
+
+- change `drive` to e.g. `walk`, `bike`, `drive_service`, `all`, `all_private` to change the type of the street network
+
+- `normal`: the graph's folder name
+
+- `ma_jakarta/network_graphs`: the output's folder path 
+
+https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.core.graph_from_place
+
+##### network centrality
+
+run to calculate centrality `python ma_jakarta/scripts/network/run_network.py normal Betweenness Harmonic_Closeness`
+
+- where `normal`: network graph folder name with parent folder `ma_jakarta/network_graphs`
+
+- `Betweenness Harmonic_Closeness`: Centrality declaration, choose one or both  
