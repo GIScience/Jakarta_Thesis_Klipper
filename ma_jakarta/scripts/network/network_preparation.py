@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
-from __init__ import speed_limits_yaml
-import osmnx as ox
+from __init__ import BASEDIR, SETTINGS
 import networkx as nx
 import networkit as nkit
-import yaml
+from yaml import safe_load
+from os import path
 import rtree
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import shape, LineString, Point
 from shapely import ops
-
-
-def download_network(city_name, network_type, network_file_name, output_path):
-    """Download and save network road graph with OSMnx module."""
-
-    ox_graph = ox.graph_from_place(city_name, network_type=network_type)
-    ox.save_graph_shapefile(ox_graph, network_file_name, output_path)
-
-    return ox_graph
 
 
 def flood_layer_union(flood_layer):
@@ -102,19 +93,18 @@ def create_weighted_graph(nx_graph):
     graph_weighted_directed = nkit.Graph(nkit_graph.numberOfNodes(), weighted=True, directed=True)
 
     # Openrouteservice yaml file with defined speed limits for each road type
-    with open(speed_limits_yaml) as speed_limit_file:
-        speed_limit = yaml.load(speed_limit_file, Loader=yaml.FullLoader)
+    speed_limit = safe_load(open(path.join(BASEDIR, SETTINGS['speed_limits'])))
 
-        for edge, highway, length in zip(nkit_edges, [w[2] for w in nx_graph.edges.data('highway')],
-                                         [float(w[2]) for w in nx_graph.edges.data('length')]):
-            try:
-                weight = (length / 1000) / speed_limit[highway]
-            except KeyError:
-                # in some cases two road types are defined for one road -> take the first one
-                weight = (length / 1000) / speed_limit[highway.strip('][').split('\'')[1]]
+    for edge, highway, length in zip(nkit_edges, [w[2] for w in nx_graph.edges.data('highway')],
+                                     [float(w[2]) for w in nx_graph.edges.data('length')]):
+        try:
+            weight = (length / 1000) / speed_limit[highway]
+        except KeyError:
+            # in some cases two road types are defined for one road -> take the first one
+            weight = (length / 1000) / speed_limit[highway.strip('][').split('\'')[1]]
 
-            # add edges and weight to new, empty nkit graph
-            graph_weighted_directed.addEdge(edge[0], edge[1], weight)
+        # add edges and weight to new, empty nkit graph
+        graph_weighted_directed.addEdge(edge[0], edge[1], weight)
 
     nkit.overview(graph_weighted_directed)
 

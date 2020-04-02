@@ -1,0 +1,27 @@
+speed_limits: 'ma_jakarta/scripts/network/speed_limits.yaml'
+
+# input preprocessing
+jakarta_border: 'input/jakarta_border.geojson'
+flooded: 'input/flooded_layer.shp'
+floodprone_input: 'input/RW-DKI-Jakarta.gpkg'
+amenity_data: '/home/isabell/Workspace/test/ma/ma-jakarta/data/amenity/amenity.geojson'
+pop_raster: '/home/isabell/Workspace/test/ma/ma-jakarta/data/idn_ppp_2020.tif'
+
+# output preprocessing
+floodprone: 'preprocessed/floodprone.shp'
+amenities_all: 'preprocessed/amenities_all.shp'
+amenities_prone: 'preprocessed/amenities_prone.shp'
+amenities_flooded: 'preprocessed/amenities_flooded.shp'
+pop_raster_extract: 'preprocessed/idn_ppp_2020_extract.tif'
+
+# output network
+network_path: 'ma_jakarta/network_graphs'
+# network_normal: 'ma_jakarta/network_graphs/normal'
+# network_prone: 'ma_jakarta/network_graphs/floodprone'
+# network_flooded: 'ma_jakarta/network_graphs/flooded'
+
+# ors
+api_key: 'your-api-key'
+iso_normal: 'ma_jakarta/data/preprocessed/iso_normal.shp'
+iso_prone: 'ma_jakarta/data/preprocessed/iso_prone.shp'
+iso_flooded: 'ma_jakarta/data/preprocessed/iso_flooded.shp'

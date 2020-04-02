@@ -29,12 +29,10 @@ def build_cython():
 def calculate_node_difference(normal_graph, flood_graph, centrality):
     """"""
 
-    # complete/normal graph and flooded/floodprone graph
-    # G_normal = nx.read_shp(path.join(BASEDIR, 'graphs_2/complete'))
+    # normal and flooded/floodprone graph
     g_normal = nx.read_shp(normal_graph)
     node_data_normal = list(g_normal.nodes(data=True))
 
-    # G_flooded = nx.read_shp(path.join(BASEDIR, 'graphs_2/floodprone'))
     g_flood = nx.read_shp(flood_graph)
     node_data_flooded = list(g_flood.nodes(data=True))
 
