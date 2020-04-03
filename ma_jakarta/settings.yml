@@ -9,19 +9,18 @@ pop_raster: '/home/isabell/Workspace/test/ma/ma-jakarta/data/idn_ppp_2020.tif'
 
 # output preprocessing
 floodprone: 'preprocessed/floodprone.shp'
-amenities_all: 'preprocessed/amenities_all.shp'
-amenities_prone: 'preprocessed/amenities_prone.shp'
+amenities_all: 'preprocessed/amenities_normall.shp'
+amenities_prone: 'preprocessed/amenities_floodprone.shp'
 amenities_flooded: 'preprocessed/amenities_flooded.shp'
 pop_raster_extract: 'preprocessed/idn_ppp_2020_extract.tif'
 
 # output network
-network_path: 'ma_jakarta/network_graphs'
 # network_normal: 'ma_jakarta/network_graphs/normal'
-# network_prone: 'ma_jakarta/network_graphs/floodprone'
-# network_flooded: 'ma_jakarta/network_graphs/flooded'
+network_prone: 'floodprone'
+network_flooded: 'flooded'
 
 # ors
 api_key: 'your-api-key'
 iso_normal: 'ma_jakarta/data/preprocessed/iso_normal.shp'
-iso_prone: 'ma_jakarta/data/preprocessed/iso_prone.shp'
+iso_prone: 'ma_jakarta/data/preprocessed/iso_floodprone.shp'
 iso_flooded: 'ma_jakarta/data/preprocessed/iso_flooded.shp'

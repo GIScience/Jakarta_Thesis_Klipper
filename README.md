@@ -18,26 +18,6 @@
 ## install docker 
 
 
-## install and run ors
-- `cd ma-jakarta`
-
-- `git clone https://github.com/GIScience/openrouteservice.git `
-
-- `cd openrouteservice`
-
-- `git checkout development`
-
-- `mkdir docker/data/preprocess`
-
-- adjust filename in ors_graph_build.py and run
-
-- adjust docker-compose.yml: OSM_FILE and volumes
-
-- make sure there is no docker/graph folder existing. If rename to e.g. graphs_floodprone to keep data. ORS builds raph from "graphs" folder
-
-- in folder ma/openrouteservice/docker: `docker-compose up -d`
-
-
 ### This API was tested:
 
 - on a Manjaro Linux 
@@ -92,3 +72,41 @@ run to calculate centrality `python ma_jakarta/scripts/network/run_network.py no
 - where `normal`: network graph folder name with parent folder `ma_jakarta/network_graphs`
 
 - `Betweenness Harmonic_Closeness`: Centrality declaration, choose one or both  
+
+
+#### ors
+
+##### install ors and build
+
+- `cd ma_jakarta`
+
+- `git clone https://github.com/GIScience/openrouteservice.git`
+
+- `cd openrouteservice`
+
+- `git checkout development`
+
+- `cd ../`
+
+- `python ma_jakarta/scripts/ors/graph_preparation.py floodprone`
+
+- `sudo mv ma_jakarta/app.config.sample ma_jakarta/openrouteservice/docker/app.config.sample`
+
+- adjust docker-compose.yml: OSM_FILE and volumes
+
+- make sure there is no `docker/graph` folder existing. If rename to e.g. graphs_floodprone to keep data. ORS builds graph from "graphs" folder. 
+To rename graph: `sudo mv ma_jakarta/openrouteservice/docker/graphs ma_jakarta/openrouteservice/docker/graphs_floodprone`
+
+- in folder openrouteservice/docker: `docker-compose up -d`
+
+It takes a bit to build the graph, even if the script has finished successfully. The graph is built when the `grpahs` folder includes 
+the subgraphs `bike`, `pedestrian-walk`, `vehicles-car`, `vehicles-hgv`, which include files like `edges`, `geometry`, `location_index`.  
+
+##### isochrones
+
+- run `python ma_jakarta/scripts/ors/isochrone.py your-ors-api-key floodprone`
+
+
+### TODO: 
+
+- use own ors fork? -> adjust maximum_snapping_radius: 350m is too large..

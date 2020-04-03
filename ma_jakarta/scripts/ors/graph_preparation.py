@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
-from __init__ import BASEDIR
+from __init__ import BASEDIR, NETWORK_DIR
 import subprocess
-from os import path
-
-#
-# build graph ?!
+from os import path, mkdir, rmdir
+import shutil
+import sys
+import logging
 
 
 class ORSGraphPrep:
     """Convert network graph format from .shp to .osm.pbf"""
 
-    def __init__(self, graph, graph_name):
-        self.graph_name = graph
-        self.osmconvert = path.join(BASEDIR, 'osmconvert')
-        self.edge_shp_file = path.join(graph + '/edges.shp')
-        self.osm_file = path.join(BASEDIR, 'openrouteservice/docker/data/preprocess/' + graph_name + '.osm')
+    def __init__(self, graph_name):
+        self.graph_name = graph_name
+        self.osmconvert = path.join(BASEDIR, 'ma_jakarta/scripts/osmconvert')
+        self.edge_shp_file = path.join(NETWORK_DIR, graph_name + '/edges.shp')
+        self.osm_file = path.join(BASEDIR, 'ma_jakarta/openrouteservice/docker/data/preprocess/' + graph_name + '.osm')
         self.osm_modified_file = path.join(BASEDIR,
-                                      'openrouteservice/docker/data/preprocess/' + graph_name + '_modified.osm')
-        self.osmpbf_file = path.join(BASEDIR, 'openrouteservice/docker/data/' + graph_name + '.osm.pbf')
+                                      'ma_jakarta/openrouteservice/docker/data/preprocess/' + graph_name + '_modified.osm')
+        self.osmpbf_file = path.join(BASEDIR, 'ma_jakarta/openrouteservice/docker/data/' + graph_name + '.osm.pbf')
 
     def convert_shp2osm(self):  # network_edge_shp_file, preprocessed_osm_file
         """convert edge .shp to .osm file"""
@@ -55,9 +55,23 @@ class ORSGraphPrep:
         print('Converted .osm to .osm.pbf')
 
     def convert(self):
+        mkdir(path.join(BASEDIR, 'ma_jakarta/openrouteservice/docker/data', 'preprocess'))
         self.convert_shp2osm()
         self.convert_neg2pos_values()
         self.convert_osm2osmpbf()
+        shutil.rmtree(path.join(BASEDIR, 'ma_jakarta/openrouteservice/docker/data/preprocess'), ignore_errors=True)
+
+
+if __name__ == '__main__':
+    try:
+        network_graph_name = str(sys.argv[1])
+    except IndexError:
+        logging.error('Please provide an existing network graph name.')
+
+    if not path.exists(path.join(BASEDIR, 'ma_jakarta/openrouteservice/docker/data', network_graph_name + '.osm.pbf')):
+        ORSGraphPrep(network_graph_name).convert()
+    else:
+        print(network_graph_name + '.osm.pbf already exists.')
 
     # adjust docker-compose.yml: OSM_FILE and volumes
     # make sure there is no docker/graph folder existing.
