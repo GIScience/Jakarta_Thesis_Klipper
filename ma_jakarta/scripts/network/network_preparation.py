@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __init__ import BASEDIR, SETTINGS
+from __init__ import BASEDIR, DATA_DIR, SETTINGS
 import networkx as nx
 import networkit as nkit
 from yaml import safe_load
@@ -13,7 +13,7 @@ from shapely import ops
 
 def flood_layer_union(flood_layer):
     # TODO: rewrite docstring -> fix..
-    """Fix geometry to calculate difference overlay with border layer. Needed to select flooded amenities"""
+    """Fix geometry to calculate difference overlay with border layer."""
 
     flood_geom = []
     for poly in range(len(flood_layer)):
@@ -21,24 +21,23 @@ def flood_layer_union(flood_layer):
             flood_geom.append(shape(flood_layer['geometry'][poly]))
     union_l = ops.cascaded_union(flood_geom)
 
-    # TODO: here geodataframe needed?
     df = pd.DataFrame(union_l, columns=['geometry'])
     geodf = gpd.GeoDataFrame(df, geometry='geometry')
 
     return geodf
 
 
-def flood_intersection(graph, flood_layer, output):
+# TODO: change to flood_difference?
+def flood_intersection(graph, output, scenario):
     """
         Intersects network routing graph with flood polygons and removes edges and nodes which are affected by flood.
         :param graph: graph of complete area
-        :type graph: osmnx or networkx network routing graph with edge and node file
-        :param flood_layer: areas which are flooded
-        :type flood_layer: polygon shapefile
+        :type graph: osmnx or networkx network routing graph with edge and node fil
         :param output: folder path to save output
         :type output: string
         :return: flood networkx graph
         """
+    flood_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS[scenario]))
     flood_data = flood_layer_union(flood_layer)
 
     edge_data = list(graph.edges(data=True))

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __init__ import BASEDIR, DATA_DIR, SETTINGS
+from __init__ import DATA_DIR, SETTINGS
 from openrouteservice import client, exceptions
 from shapely.geometry import mapping, shape
 from shapely import ops
@@ -21,7 +21,8 @@ class Isochrone:
     def iso_request(self, output):
         """"""
 
-        print('Make sure to first build correct ORS graph! E.g. floodprone graph for floodprone isochrone request.')
+        print('Make sure to first build correct ORS graph! E.g. floodprone graph for floodprone isochrone request. \n '
+              'Requesting isochrones...')
 
         amenities = gpd.read_file(path.join(DATA_DIR, SETTINGS['amenities_' + self.scenario]))
 
@@ -88,6 +89,7 @@ class Isochrone:
         union_l = ops.cascaded_union(flood_geom)
         return union_l
 
+    # TODO: change to flood_difference?
     def iso_flood_intersect(self, preprocessed_iso, output):  # iso_amenities, flood_data, output
         """
         Intersect flood areas out of isochrones, which were wrongly created due to simplification in isochrone algorithm.
@@ -95,7 +97,7 @@ class Isochrone:
         :param output: relative output folder path
         :return: clipped isochrones as list
         """
-        print('Starting to intersect isochrone layer with flood layer. Go and get a coffee..')
+        print('Starting to intersect isochrone layer with flood layer. Go and get yourself a coffee..')
         flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS[self.scenario]))
         flood_union = self.flood_layer_union(flood_data)
 
@@ -131,7 +133,7 @@ class Isochrone:
 
 if __name__ == '__main__':
     try:
-        ors_api_key = str(sys.argv[1])
+        ors_api_key = str(sys.argv[1])  # SETTINGS['api_key']
         scenario_name = str(sys.argv[2])  # e.g. floodprone
     except IndexError:
         logging.error('Please provide a valid openrouteservice api key (Register for free: '
@@ -142,7 +144,6 @@ if __name__ == '__main__':
 
     if not path.exists(output_file):
         if scenario_name != 'normal':
-            print('Starting...')
             preprocess_path = path.join(DATA_DIR, 'preprocessed', 'iso_pre_' + scenario_name + '.shp')
             ors_iso.iso_request(preprocess_path)
             ors_iso.iso_flood_intersect(preprocess_path, output_file)

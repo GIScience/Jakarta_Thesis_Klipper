@@ -53,9 +53,7 @@
             "profiles":{
                "active":[
                    "vehicles-car",
-                   "vehicles-hgv",
-                   "bike",
-                   "pedestrian-walk"
+                   "vehicles-hgv"
                ],
                "default_params": {
                    "encoder_flags_size": 8,
@@ -67,7 +65,8 @@
                    "maximum_distance": 100000,
                    "maximum_segment_distance_with_dynamic_weights": 100000,
                    "maximum_distance_round_trip_routes": 100000,
-                   "maximum_waypoints": 50
+                   "maximum_waypoints": 50,
+                   "maximum_snapping_radius": 5,
                    "maximum_avoid_polygon_area": 200000000,
                    "maximum_avoid_polygon_extent": 20000,
                },
@@ -76,6 +75,7 @@
                   "parameters":{
                      "encoder_options":"consider_elevation=true|turn_costs=true|block_fords=false|use_acceleration=true",
                      "elevation":true,
+                     "maximum_snapping_radius": 5,
                      "preparation":{
                         "min_network_size":20,
                         "min_one_way_network_size":20,

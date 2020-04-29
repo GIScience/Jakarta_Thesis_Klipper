@@ -10,6 +10,6 @@ ma_jakarta/data/input/*
 ma_jakarta/data/preprocessed/*
 ma_jakarta/data/results/*
 
-ma_jakarta/network_graphs/normal/*
-ma_jakarta/network_graphs/flooded/*
-ma_jakarta/network_graphs/floodprone/*
+ma_jakarta/network_graphs/v1/normal/*
+ma_jakarta/network_graphs/v1/flooded/*
+ma_jakarta/network_graphs/v1/floodprone/*

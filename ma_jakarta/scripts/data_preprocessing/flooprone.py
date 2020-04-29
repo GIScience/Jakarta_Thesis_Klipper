@@ -15,4 +15,3 @@ def floodprone_selection(flood_layer, output=None):
         with fn.open(output, 'w', driver='ESRI Shapefile', schema=flood_layer.schema) as o_shp:
             for prone_feat in prone_features:
                 o_shp.write(prone_feat)
-

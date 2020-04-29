@@ -32,7 +32,7 @@ class ORSGraphPrep:
         print('Converted .shp to .osm')
 
     def convert_neg2pos_values(self):
-        """Modify negative Openstreetmap ids and refs to positive values. Needed to build openrouteservice graph."""
+        """Modify negative OpenStreetMap ids and refs to positive values. Needed to build openrouteservice graph."""
         with open(self.osm_file, 'r') as inputfile:
             with open(self.osm_modified_file, 'w') as outputfile:
                 filedata = inputfile.read()
@@ -74,6 +74,6 @@ if __name__ == '__main__':
         print(network_graph_name + '.osm.pbf already exists.')
 
     # adjust docker-compose.yml: OSM_FILE and volumes
-    # make sure there is no docker/graph folder existing.
+    # make sure there exists no docker/graph folder.
     # If rename to e.g. graphs_floodprone to keep data. ORS builds graph from "graphs" folder
     # in folder openrouteservice/docker: docker-compose up -d

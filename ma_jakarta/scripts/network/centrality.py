@@ -86,7 +86,7 @@ class Centrality:
         """Join dataframes and save as shapefile."""
         df = graph_df.merge(centrality_df, on='enum_id_ce')
         geodf = gpd.GeoDataFrame(df, geometry='geometry')
-        geodf.to_file(path.join(graph_path, 'node_' + column_declaration + '.shp'), driver='ESRI Shapefile')
+        geodf.to_file(path.join(graph_path, 'nodes_' + column_declaration + '.shp'), driver='ESRI Shapefile')
 
         return geodf
 
@@ -94,6 +94,10 @@ class Centrality:
         """"""
         centrality_df, column_declaration = self.calculate_centrality(self.centrality_measure, self.nkit_graph, self.normalized)
         graph_df = self.restructure_dataframe(self.nx_graph)
-        geodf_graph = self.save(self.graph_path, column_declaration, centrality_df, graph_df)
 
-        return geodf_graph
+        df = graph_df.merge(centrality_df, on='enum_id_ce')
+        geodf = gpd.GeoDataFrame(df, geometry='geometry')
+
+        # geodf_graph = self.save(self.graph_path, column_declaration, centrality_df, graph_df)
+
+        return geodf

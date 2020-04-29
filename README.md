@@ -48,11 +48,11 @@ e.g. `floodprone`: graph name: `network_graphs/floodprone` and flood layer: `flo
 
 ### run
 
-#### data preprocessing
+#### 1. data preprocessing
 run once to preprocess data: `python ma_jakarta/scripts/data_preprocessing/run_preprocessing.py`
 
 
-#### network data 
+#### 2. network data 
 run once to download network data `python ma_jakarta/scripts/network/download_network.py 'Jakarta, Indonesia' 'drive' 'normal' 'ma_jakarta/network_graphs'`
 
 - where `Jakarta, Indonesia`  defines the data for the desired place
@@ -65,9 +65,11 @@ run once to download network data `python ma_jakarta/scripts/network/download_ne
 
 https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.core.graph_from_place
 
-##### network centrality
+##### 3. flood network and centrality
 
 run to calculate centrality `python ma_jakarta/scripts/network/run_network.py normal Betweenness Harmonic_Closeness`
+if a flood related scenario is given the network will be first intersected with the flood layer and saved separately e.g. 
+`python ma_jakarta/scripts/network/run_network.py floodprone Betweenness Harmonic_Closeness`
 
 - where `normal`: network graph folder name with parent folder `ma_jakarta/network_graphs`
 
@@ -76,7 +78,7 @@ run to calculate centrality `python ma_jakarta/scripts/network/run_network.py no
 
 #### ors
 
-##### install ors and build
+##### install ors
 
 - `cd ma_jakarta`
 
@@ -88,9 +90,11 @@ run to calculate centrality `python ma_jakarta/scripts/network/run_network.py no
 
 - `cd ../`
 
-- `python ma_jakarta/scripts/ors/graph_preparation.py floodprone`
-
 - `sudo mv ma_jakarta/app.config.sample ma_jakarta/openrouteservice/docker/app.config.sample`
+
+#### 4. build ors graph 
+
+- `python ma_jakarta/scripts/ors/graph_preparation.py floodprone`
 
 - adjust docker-compose.yml: OSM_FILE and volumes
 
@@ -100,7 +104,7 @@ To rename graph: `sudo mv ma_jakarta/openrouteservice/docker/graphs ma_jakarta/o
 - in folder openrouteservice/docker: `docker-compose up -d`
 
 It takes a bit to build the graph, even if the script has finished successfully. The graph is built when the `grpahs` folder includes 
-the subgraphs `bike`, `pedestrian-walk`, `vehicles-car`, `vehicles-hgv`, which include files like `edges`, `geometry`, `location_index`.  
+the subgraphs `vehicles-car` and `vehicles-hgv`, which include files like `edges`, `geometry`, `location_index`.  
 
 ##### isochrones
 
@@ -109,4 +113,5 @@ the subgraphs `bike`, `pedestrian-walk`, `vehicles-car`, `vehicles-hgv`, which i
 
 ### TODO: 
 
-- use own ors fork? -> adjust maximum_snapping_radius: 350m is too large..
+- decrease maximum_snapping_radius from 350 to 5 does not result in desired output..
+

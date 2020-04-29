@@ -1,49 +1,60 @@
 # -*- coding: utf-8 -*-
-from __init__ import BASEDIR, DATA_DIR, NETWORK_DIR, SETTINGS
-from ma_jakarta.scripts.network import network_preparation
-from ma_jakarta.scripts.network.network_analysis import centrality
+from __init__ import DATA_DIR, NETWORK_DIR, SETTINGS
+from ma_jakarta.scripts.network import network_preparation, centrality
 import sys
 from os import path, mkdir
 import networkx as nx
 import geopandas as gpd
 import logging
 
+scenario = None
+acronym = None
+chosen_centralities = []
+
 # by user provided arguments
 try:
-    graph_name = str(sys.argv[1])
-    graph_path = str(path.join(NETWORK_DIR, graph_name))
-    centrality_name = str(sys.argv[2])
+    scenario = str(sys.argv[1])
+    chosen_centralities.append(str(sys.argv[2]))
 except Exception:
     logging.error('Please provide a graph name and at least one centrality name, e.g. floodprone Betweenness.')
     exit()
 
-if centrality_name != 'Betweenness' and centrality_name != 'Harmonic_Closeness':
+# if two centrality arguments are provided by the user; optional argument
+try:
+    chosen_centralities.append(str(sys.argv[3]))
+except IndexError:
+    pass
+
+graph_path = str(path.join(NETWORK_DIR, scenario))
+
+if chosen_centralities[0] != 'Betweenness' and chosen_centralities[0] != 'Harmonic_Closeness':
     logging.error('Please choose either Betweenness, Harmonic_Closeness or both as centrality.')
     exit()
 
-
-# declaration to check if file already exists
-declaration = None
-if centrality_name == 'Betweenness':
-    declaration = 'btwn'
-elif centrality_name == 'Harmonic_Closeness':
-    declaration = 'cls'
+# check for layer attribute..
+# acronym to check if file already exists
+# for centrality_name in chosen_centralities:
+#     if centrality_name == 'Betweenness':
+#         acronym = 'btwn'
+#     elif centrality_name == 'Harmonic_Closeness':
+#         acronym = 'cls'
 
 # if centrality is already calculated, exit the script in the beginning
-if path.isfile(path.join(graph_path, 'node_' + declaration + '.shp')):
-    print(path.join(graph_path, 'node_' + declaration + '.shp'), 'already exists.')
-    exit()
+#     if path.isfile(path.join(graph_path, 'nodes_' + acronym + '.shp')):
+#         print(path.join(graph_path, 'nodes_' + acronym + '.shp'), 'already exists.')
+#         exit()
 
 
-if graph_name != 'normal':
-    if not path.exists(path.join(NETWORK_DIR, graph_name)):
-        mkdir(path.join(NETWORK_DIR, graph_name))
-        print('Directory', path.join(NETWORK_DIR, graph_name), 'created')
+if scenario != 'normal':
+    if not path.exists(path.join(NETWORK_DIR, scenario)):
+        mkdir(path.join(NETWORK_DIR, scenario))
+        print('Directory', path.join(NETWORK_DIR, scenario), 'created')
 
         complete_graph = nx.read_shp(path.join(NETWORK_DIR, 'normal'))
-        intersect_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS[graph_name]))
-        # intersect normal graph with intersection layer
-        network_graph = network_preparation.flood_intersection(complete_graph, intersect_layer, graph_path)
+        intersect_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS[scenario]))
+        # intersect normal graph with flood layer
+        network_graph = network_preparation.flood_intersection(complete_graph, graph_path, scenario)
+        # TODO: intersect with jakarta border?
     else:
         network_graph = nx.read_shp(graph_path)
 else:
@@ -54,24 +65,18 @@ else:
 weighted_normal = network_preparation.create_weighted_graph(network_graph)
 
 # calculate centrality
-centrality.Centrality(graph_path, weighted_normal, network_graph, centrality_name).run()
-print('Centrality saved:', path.join(graph_path, 'node_' + declaration + '.shp'))
+calculated_cent = []
+for centrality_name in chosen_centralities:
+    calculated_cent.append(centrality.Centrality(graph_path, weighted_normal, network_graph, centrality_name).run())
 
+# if more than one centrality was chosen merge dataframes
+if len(calculated_cent) > 1:
+    try:
+        calculated_cent[0]['btwn'] = calculated_cent[1]['btwn']
+    except Exception:
+        calculated_cent[0]['cls'] = calculated_cent[1]['cls']
 
-# if two centrality arguments are provided by the user; optional argument
-try:
-    second_centrality_name = str(sys.argv[3])
-
-    second_declaration = None
-    if second_centrality_name == 'Betweenness':
-        second_declaration = 'btwn'
-    elif second_centrality_name == 'Harmonic_Closeness':
-        second_declaration = 'cls'
-
-    if not path.isfile(path.join(graph_path, 'node_' + second_declaration + '.shp')):
-        centrality.Centrality(graph_path, weighted_normal, network_graph, second_centrality_name).run()
-        print('Centrality saved:', path.join(graph_path, 'node_' + second_declaration + '.shp'))
-    else:
-        print(path.join(graph_path, 'node_' + second_declaration + '.shp'), 'already exists.')
-except IndexError:
-    pass
+# save as new shapefile
+merged_geodf = gpd.GeoDataFrame(calculated_cent[0], geometry='geometry')
+merged_geodf.to_file(path.join(graph_path, 'nodes_centrality.shp'), driver='ESRI Shapefile')
+# print('Centrality saved:', path.join(graph_path, 'nodes_' + acronym + '.shp'))

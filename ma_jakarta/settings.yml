@@ -2,17 +2,22 @@ speed_limits: 'ma_jakarta/scripts/network/speed_limits.yaml'
 
 # input preprocessing
 jakarta_border: 'input/jakarta_border.geojson'
-flooded: 'input/flooded_layer.shp'
+flooded: 'input/flooded_layer_v2.shp'
 floodprone_input: 'input/RW-DKI-Jakarta.gpkg'
 amenity_data: '/home/isabell/Workspace/test/ma/ma-jakarta/data/amenity/amenity.geojson'
 pop_raster: '/home/isabell/Workspace/test/ma/ma-jakarta/data/idn_ppp_2020.tif'
 
 # output preprocessing
-floodprone: 'preprocessed/floodprone.shp'
-amenities_all: 'preprocessed/amenities_normall.shp'
-amenities_prone: 'preprocessed/amenities_floodprone.shp'
-amenities_flooded: 'preprocessed/amenities_flooded.shp'
+floodprone: 'preprocessed/floodprone_v2.shp'
+# amenities_normal: 'preprocessed/amenities_normal.shp'
+# amenities_floodprone: 'preprocessed/amenities_floodprone_v2.shp'
+# amenities_flooded: 'preprocessed/amenities_flooded_v2.shp'
 pop_raster_extract: 'preprocessed/idn_ppp_2020_extract.tif'
+
+amenities:
+  normal: 'preprocessed/amenities_normal.shp'
+  flooded: 'preprocessed/amenities_flooded_v2.shp'
+  floodprone: 'preprocessed/amenities_floodprone_v2.shp'
 
 # output network
 # network_normal: 'ma_jakarta/network_graphs/normal'
@@ -21,6 +26,16 @@ network_flooded: 'flooded'
 
 # ors
 api_key: 'your-api-key'
-iso_normal: 'ma_jakarta/data/preprocessed/iso_normal.shp'
-iso_prone: 'ma_jakarta/data/preprocessed/iso_floodprone.shp'
-iso_flooded: 'ma_jakarta/data/preprocessed/iso_flooded.shp'
+
+amenity_osm_values: ['hospital', 'pharmacy', 'doctors', 'clinic']
+iso_range_values: [300, 600, 900, 1200, 1500, 1800]
+
+reached:
+  normal: 'results/iso_normal.shp'
+  flooded: 'preprocessed/iso_pre_flooded.shp'  # 'results/iso_flooded.shp'
+  floodprone: 'preprocessed/iso_pre_floodprone.shp' # 'results/iso_floodprone.shp'
+
+networks:
+  normal: 'normal/nodes_centrality.shp'
+  flooded: 'flooded/nodes_centrality.shp'
+  floodprone: 'floodprone/nodes_centrality.shp'
