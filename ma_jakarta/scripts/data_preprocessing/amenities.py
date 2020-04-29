@@ -10,10 +10,9 @@ import logging
 class Amenities:
     """Amenity data preparation"""
 
-    def __init__(self, amenities, border, floodprone):
+    def __init__(self, amenities, border):
         self.amenities = amenities
         self.border = border
-        self.floodprone = floodprone
 
     def preprocessing(self, amenities_output):
         """Calculate amenities centroid, select objects laying within administrative border, save locally"""

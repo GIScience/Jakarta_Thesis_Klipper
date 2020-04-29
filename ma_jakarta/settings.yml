@@ -1,23 +1,18 @@
-speed_limits: 'ma_jakarta/scripts/network/speed_limits.yaml'
+city_border: 'input/hd_border.shp'
 
-# input preprocessing
-jakarta_border: 'input/jakarta_border.geojson'
-flooded: 'input/flooded_layer_v2.shp'
-floodprone_input: 'input/RW-DKI-Jakarta.gpkg'
-amenity_data: '/home/isabell/Workspace/test/ma/ma-jakarta/data/amenity/amenity.geojson'
-pop_raster: '/home/isabell/Workspace/test/ma/ma-jakarta/data/idn_ppp_2020.tif'
-
-# output preprocessing
-floodprone: 'preprocessed/floodprone_v2.shp'
-# amenities_normal: 'preprocessed/amenities_normal.shp'
-# amenities_floodprone: 'preprocessed/amenities_floodprone_v2.shp'
-# amenities_flooded: 'preprocessed/amenities_flooded_v2.shp'
-pop_raster_extract: 'preprocessed/idn_ppp_2020_extract.tif'
+flood:
+  flooded: 'input/flooded.shp'
+  floodprone: 'input/floodprone.shp'
 
 amenities:
+  data: 'input/amenities.geojson'
   normal: 'preprocessed/amenities_normal.shp'
-  flooded: 'preprocessed/amenities_flooded_v2.shp'
-  floodprone: 'preprocessed/amenities_floodprone_v2.shp'
+  flooded: 'preprocessed/amenities_flooded.shp'
+  floodprone: 'preprocessed/amenities_floodprone.shp'
+
+population:
+  data: 'input/deu_ppp_2020.tif'
+  extract: 'preprocessed/deu_ppp_2020_extract.tif'
 
 # output network
 # network_normal: 'ma_jakarta/network_graphs/normal'
@@ -39,3 +34,5 @@ networks:
   normal: 'normal/nodes_centrality.shp'
   flooded: 'flooded/nodes_centrality.shp'
   floodprone: 'floodprone/nodes_centrality.shp'
+
+speed_limits: 'ma_jakarta/scripts/network/speed_limits.yaml'
