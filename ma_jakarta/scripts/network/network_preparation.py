@@ -37,8 +37,7 @@ def flood_intersection(graph, output, scenario):
         :type output: string
         :return: flood networkx graph
         """
-    flood_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS[scenario]))
-    flood_data = flood_layer_union(flood_layer)
+    flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][scenario]))
 
     edge_data = list(graph.edges(data=True))
 
@@ -97,10 +96,14 @@ def create_weighted_graph(nx_graph):
     for edge, highway, length in zip(nkit_edges, [w[2] for w in nx_graph.edges.data('highway')],
                                      [float(w[2]) for w in nx_graph.edges.data('length')]):
         try:
-            weight = (length / 1000) / speed_limit[highway]
+            if '[' in highway:
+                # in some cases two road types are defined for one road -> take the first one
+                weight = (length / 1000) / speed_limit[highway.strip('][').split('\'')[1]]
+            else:
+                weight = (length / 1000) / speed_limit[highway]
         except KeyError:
-            # in some cases two road types are defined for one road -> take the first one
-            weight = (length / 1000) / speed_limit[highway.strip('][').split('\'')[1]]
+            # for undefined speed limit, take default value of 50
+            weight = (length / 1000) / 50
 
         # add edges and weight to new, empty nkit graph
         graph_weighted_directed.addEdge(edge[0], edge[1], weight)

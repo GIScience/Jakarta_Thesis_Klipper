@@ -7,6 +7,7 @@ import networkx as nx
 import geopandas as gpd
 import logging
 
+# TODO: check if already calculated?
 scenario = None
 acronym = None
 chosen_centralities = []
@@ -15,7 +16,7 @@ chosen_centralities = []
 try:
     scenario = str(sys.argv[1])
     chosen_centralities.append(str(sys.argv[2]))
-except Exception:
+except IndexError:
     logging.error('Please provide a graph name and at least one centrality name, e.g. floodprone Betweenness.')
     exit()
 
@@ -31,27 +32,13 @@ if chosen_centralities[0] != 'Betweenness' and chosen_centralities[0] != 'Harmon
     logging.error('Please choose either Betweenness, Harmonic_Closeness or both as centrality.')
     exit()
 
-# check for layer attribute..
-# acronym to check if file already exists
-# for centrality_name in chosen_centralities:
-#     if centrality_name == 'Betweenness':
-#         acronym = 'btwn'
-#     elif centrality_name == 'Harmonic_Closeness':
-#         acronym = 'cls'
-
-# if centrality is already calculated, exit the script in the beginning
-#     if path.isfile(path.join(graph_path, 'nodes_' + acronym + '.shp')):
-#         print(path.join(graph_path, 'nodes_' + acronym + '.shp'), 'already exists.')
-#         exit()
-
-
 if scenario != 'normal':
     if not path.exists(path.join(NETWORK_DIR, scenario)):
         mkdir(path.join(NETWORK_DIR, scenario))
         print('Directory', path.join(NETWORK_DIR, scenario), 'created')
 
         complete_graph = nx.read_shp(path.join(NETWORK_DIR, 'normal'))
-        intersect_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS[scenario]))
+        intersect_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][scenario]))
         # intersect normal graph with flood layer
         network_graph = network_preparation.flood_intersection(complete_graph, graph_path, scenario)
         # TODO: intersect with jakarta border?
@@ -79,4 +66,4 @@ if len(calculated_cent) > 1:
 # save as new shapefile
 merged_geodf = gpd.GeoDataFrame(calculated_cent[0], geometry='geometry')
 merged_geodf.to_file(path.join(graph_path, 'nodes_centrality.shp'), driver='ESRI Shapefile')
-# print('Centrality saved:', path.join(graph_path, 'nodes_' + acronym + '.shp'))
+print('Centrality saved:', path.join(graph_path, 'nodes_centrality.shp'))
