@@ -1,8 +1,12 @@
 city_border: 'input/hd_border.shp'
 
 flood:
-  flooded: 'input/flooded.shp'
-  floodprone: 'input/floodprone.shp'
+  input:
+    flooded: 'input/flooded.shp'
+    floodprone: 'input/floodprone.shp'
+  preprocessed:
+    flooded: 'preprocessed/flooded_modi.shp'
+    floodprone: 'preprocessed/floodprone_modi.shp'
 
 amenities:
   data: 'input/amenities.geojson'
