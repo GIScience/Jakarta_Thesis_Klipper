@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __init__ import BASEDIR, NETWORK_DIR
 import subprocess
-from os import path, mkdir, rmdir
+from os import path, mkdir
 import shutil
 import sys
 import logging
