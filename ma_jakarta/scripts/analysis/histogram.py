@@ -12,16 +12,17 @@ def autolabel(rects, ax):
 
 
 def create_histogram(df, amenity_type, ax, y_label, title, y_rounding):
+    """"""
     hosp_data = []
-
-    for scenario in df:
-        hosp_data.append(list(df[scenario][amenity_type].values()))
-        x_label = list(df[scenario][amenity_type].keys())
-
+    x_label = None
     ind = np.arange(6)
     width = 0.3
     rects = []
     counter = 0
+
+    for scenario in df:
+        hosp_data.append(list(df[scenario][amenity_type].values()))
+        x_label = list(df[scenario][amenity_type].keys())
 
     for hosp in range(len(hosp_data)):
         rect = ax.bar(ind + counter * width, hosp_data[counter], width)

@@ -24,27 +24,12 @@ def dissolve_layer(iso_layer):
     return result_merged
 
 
-def flood_layer_union(flood_layer):
-    # TODO: rewrite docstring -> fix..
-    """Fix geometry to calculate difference overlay with border layer. Needed to select flooded amenities"""
-    flood_geom = []
-
-    for poly in range(len(flood_layer)):
-        if flood_layer['geometry'][poly] is not None:
-            flood_geom.append(shape(flood_layer['geometry'][poly]))
-    union_l = ops.cascaded_union(flood_geom)
-
-    df = pd.DataFrame(union_l, columns=['geometry'])
-    geodf = gpd.GeoDataFrame(df, geometry='geometry')
-
-    return geodf
-
-
 def flood_difference(iso_dissolved, scenario):
-    flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS[scenario]))
-    flood_union = flood_layer_union(flood_data)
+    """Calculates difference of isochrones and flood areas.
+            Needed due to wrongly created areas due to simplification in isochrone algorithm."""
+    flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][scenario]))
 
-    iso_intersected = gpd.overlay(iso_dissolved, flood_union, how='difference')
+    iso_intersected = gpd.overlay(iso_dissolved, flood_data, how='difference')
 
     return iso_intersected
 
@@ -66,7 +51,7 @@ def reached_area(iso_layer):
 
 def reached_pop(iso_layer):
     """Calculate population sum per isochrone."""
-    pop_raster = path.join(DATA_DIR, SETTINGS['pop_raster_extract'])
+    pop_raster = path.join(DATA_DIR, SETTINGS['population']['extract'])
     amenities = SETTINGS['amenity_osm_values']
     range_values = SETTINGS['iso_range_values']
     pop_data = {}
@@ -85,7 +70,7 @@ def reached_pop(iso_layer):
     return pop_data
 
 
-def reached_nodes_sjoin(iso_layer, scenario):
+def reached_nodes(iso_layer, scenario):
     """Caluclate reached nodes and mean centrality per isochrone."""
     gdf_iso = gpd.GeoDataFrame(iso_layer, geometry='geometry')
     gdf_nodes = gpd.read_file(path.join(NETWORK_DIR, SETTINGS['networks'][scenario]))
