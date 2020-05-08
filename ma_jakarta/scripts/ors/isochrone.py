@@ -17,21 +17,24 @@ class Isochrone:
         self.scenario = scenario
 
     def iso_request(self, output):
-        """"""
+        """Openrouteservice isochrone calculation"""
 
         print('Make sure to first build correct ORS graph! E.g. floodprone graph for floodprone isochrone request. \n '
               'Requesting isochrones...')
 
-        amenities = gpd.read_file(path.join(DATA_DIR, SETTINGS['amenities'][self.scenario]))
-
         # using my local openrouteservice package with the manually created routing graph
         clnt = client.Client(base_url='http://localhost:8080/ors', key=self.api_key)
 
+        # health care locations as isochrone centers
+        amenities = gpd.read_file(path.join(DATA_DIR, SETTINGS['amenities'][self.scenario]))
+        id_name = ['id_1' if scenario_name == 'normal' else 'id']
         request_counter = 0
         iso_geom_list = []
-        for geom, amenity_type, amenity_id in zip(amenities['geometry'], amenities['amenity'], amenities['id']):
+
+        for geom, amenity_type, amenity_id in zip(amenities['geometry'], amenities['amenity'], amenities[id_name[0]]):
             point_geom = mapping(geom)
 
+            # isochrone paramters
             params_iso = {'locations': [[point_geom['coordinates'][0], point_geom['coordinates'][1]]],
                           'profile': 'driving-car',
                           'interval': 300,  # 300/60 = 5 min
@@ -39,6 +42,7 @@ class Isochrone:
                           'attributes': ['area']}
 
             try:
+                # request isochrones
                 iso_geom_list.append([clnt.isochrones(**params_iso), amenity_type, request_counter, amenity_id])
             except exceptions.ApiError:
                 print(params_iso, 'is isolated and out of routing graph range.')
@@ -87,7 +91,7 @@ class Isochrone:
 
 if __name__ == '__main__':
     try:
-        ors_api_key = str(SETTINGS['api_key'])
+        ors_api_key = str(SETTINGS['ors_api_key'])
         scenario_name = str(sys.argv[1])  # e.g. floodprone
     except IndexError:
         logging.error('Please provide a valid openrouteservice api key (Register for free: '

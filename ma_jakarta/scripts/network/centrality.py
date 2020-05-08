@@ -34,7 +34,7 @@ class Centrality:
         if centrality_measure == 'Betweenness':
             nkit_centrality = nkit.centrality.Betweenness(nkit_graph, normalized=normalized).run()
             column_declaration = 'btwn'
-        elif centrality_measure == 'Harmonic_Closeness':
+        elif centrality_measure == 'Closeness':
             # normalization only for unweighted graphs
             nkit_centrality = nkit.centrality.HarmonicCloseness(nkit_graph, normalized=normalized).run()
             column_declaration = 'cls'
@@ -97,7 +97,5 @@ class Centrality:
 
         df = graph_df.merge(centrality_df, on='enum_id_ce')
         geodf = gpd.GeoDataFrame(df, geometry='geometry')
-
-        # geodf_graph = self.save(self.graph_path, column_declaration, centrality_df, graph_df)
 
         return geodf

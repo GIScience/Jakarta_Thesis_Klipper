@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __init__ import SETTINGS
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -13,21 +14,21 @@ def autolabel(rects, ax):
 
 def create_histogram(df, amenity_type, ax, y_label, title, y_rounding):
     """"""
-    hosp_data = []
+    bar_color = SETTINGS['bar_color']
+    amenity_data = []
     x_label = None
     ind = np.arange(6)
     width = 0.3
     rects = []
-    counter = 0
 
     for scenario in df:
-        hosp_data.append(list(df[scenario][amenity_type].values()))
+        amenity_data.append(list(df[scenario][amenity_type].values()))
         x_label = list(df[scenario][amenity_type].keys())
 
-    for hosp in range(len(hosp_data)):
-        rect = ax.bar(ind + counter * width, hosp_data[counter], width)
+    for amenity_index in range(len(amenity_data)):
+        rect = ax.bar(ind + amenity_index * width, amenity_data[amenity_index], width, color=bar_color[amenity_index],
+                      edgecolor='black')
         rects.append([rect])
-        counter += 1
 
     ax.set_ylabel(y_label)
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, p: '%d' % (y * y_rounding)))
@@ -35,8 +36,8 @@ def create_histogram(df, amenity_type, ax, y_label, title, y_rounding):
     ax.set_xticks(ind + width)
     ax.set_xticklabels([int(label / 60) for label in x_label])
     ax.legend((rect[0] for rect in rects), ([scenario for scenario in df]))
-    #     ax.set_title('Reached ' + title + ' for health amenity type ' + str(amenity_type))
-    ax.set_title(title + ' for health amenity type ' + str(amenity_type))
+    ax.set_title('Reached ' + title + ' for health amenity type ' + str(amenity_type))
+    # ax.set_title(title + ' for health amenity type ' + str(amenity_type))
 
     # for rect in rects:
     #     autolabel(rect[0], ax)

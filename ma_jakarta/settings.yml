@@ -15,28 +15,27 @@ amenities:
   floodprone: 'preprocessed/amenities_floodprone.shp'
 
 population:
-  data: 'input/deu_ppp_2020.tif'
+  data: 'input/population_2020.tif'
   extract: 'preprocessed/deu_ppp_2020_extract.tif'
-
-# output network
-# network_normal: 'ma_jakarta/network_graphs/normal'
-network_prone: 'floodprone'
-network_flooded: 'flooded'
-
-# ors
-api_key: 'your-api-key'
-
-amenity_osm_values: ['hospital', 'pharmacy', 'doctors', 'clinic']
-iso_range_values: [300, 600, 900, 1200, 1500, 1800]
 
 reached:
   normal: 'results/iso_normal.shp'
-  flooded: 'preprocessed/iso_pre_flooded.shp'  # 'results/iso_flooded.shp'
-  floodprone: 'preprocessed/iso_pre_floodprone.shp' # 'results/iso_floodprone.shp'
+  flooded: 'preprocessed/iso_pre_flooded.shp'
+  floodprone: 'preprocessed/iso_pre_floodprone.shp'
 
 networks:
   normal: 'normal/nodes_centrality.shp'
   flooded: 'flooded/nodes_centrality.shp'
   floodprone: 'floodprone/nodes_centrality.shp'
+
+# choose histogram bar color for the amount of provided flood layer (the first color visualizes the normal scenario):
+# https://www.w3schools.com/colors/colors_picker.asp
+bar_color: ['#ff9900', '#6699ff', '#9900cc']
+
+# provide your openrouteservice api key (register for free: 'https://openrouteservice.org/dev/#/signup)
+ors_api_key: 'your-api-key'
+
+amenity_osm_values: ['hospital', 'pharmacy', 'doctors', 'clinic']
+iso_range_values: [300, 600, 900, 1200, 1500, 1800]
 
 speed_limits: 'ma_jakarta/scripts/network/speed_limits.yaml'

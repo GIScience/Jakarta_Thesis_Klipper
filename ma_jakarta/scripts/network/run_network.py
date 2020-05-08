@@ -28,8 +28,8 @@ except IndexError:
 
 graph_path = str(path.join(NETWORK_DIR, scenario))
 
-if chosen_centralities[0] != 'Betweenness' and chosen_centralities[0] != 'Harmonic_Closeness':
-    logging.error('Please choose either Betweenness, Harmonic_Closeness or both as centrality.')
+if chosen_centralities[0] != 'Betweenness' and chosen_centralities[0] != 'Closeness':
+    logging.error('Please choose either Betweenness, Closeness or both as centrality.')
     exit()
 
 if scenario != 'normal':

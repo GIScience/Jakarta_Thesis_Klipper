@@ -138,5 +138,5 @@ if 'histogram' in analysis_choise:
     cls_merged = pd.concat([layer for layer in union_cls_dict])
     cls_merged.to_csv(path.join(DATA_DIR, 'results/tables/reached_cls_union.csv'))
 
-    print('Results for histograms and tables were saved in', DATA_DIR + '/results/tables and ',
+    print('Results for histograms and tables were saved in', DATA_DIR + '/results/tables and',
           DATA_DIR + '/results/plots')

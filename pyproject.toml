@@ -24,6 +24,8 @@ gdal = "^3.0.4"
 pyyaml = "^5.3"
 ogr2osm = {git = "https://github.com/pnorman/ogr2osm"}
 rasterio = "^1.1.3"
+area = "^1.1.1"
+rasterstats = "^0.14.0"
 
 [tool.poetry.dev-dependencies]
 
