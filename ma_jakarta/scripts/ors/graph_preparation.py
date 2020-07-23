@@ -63,6 +63,8 @@ class ORSGraphPrep:
 
 
 if __name__ == '__main__':
+    network_graph_name = None
+
     try:
         network_graph_name = str(sys.argv[1])
     except IndexError:

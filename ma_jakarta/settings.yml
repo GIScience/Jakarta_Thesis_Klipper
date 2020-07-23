@@ -1,27 +1,31 @@
-city_border: 'input/hd_border.shp'
+city_border: 'input/jakarta_border.geojson'
 
 flood:
   input:
-    flooded: 'input/flooded.shp'
-    floodprone: 'input/floodprone.shp'
+    flooded: 'input/flooded_layer_v2.shp'
+    floodprone: 'preprocessed/floodprone.shp'
   preprocessed:
-    flooded: 'preprocessed/flooded_modi.shp'
-    floodprone: 'preprocessed/floodprone_modi.shp'
+    flooded: 'input/flooded_layer_v2.shp'
+    floodprone: 'preprocessed/floodprone.shp'
 
 amenities:
   data: 'input/amenities.geojson'
-  normal: 'preprocessed/amenities_normal.shp'
-  flooded: 'preprocessed/amenities_flooded.shp'
+  # normal: 'preprocessed/amenities_normal.shp'
+  normal: 'preprocessed/healthsites.shp' # dki
+  # flooded: 'preprocessed/amenities_flooded_v2.shp'
+  flooded: 'preprocessed/healthsites_flooded.shp' # dki
   floodprone: 'preprocessed/amenities_floodprone.shp'
 
 population:
   data: 'input/population_2020.tif'
-  extract: 'preprocessed/deu_ppp_2020_extract.tif'
+  extract: 'preprocessed/idn_ppp_2020_extract.tif'
+  fillnan: 'preprocessed/idn_ppp_2020_extract_fillnan.tif'
 
 reached:
   normal: 'results/iso_normal.shp'
   flooded: 'preprocessed/iso_pre_flooded.shp'
-  floodprone: 'preprocessed/iso_pre_floodprone.shp'
+  # flooded: 'results/iso_flooded.shp'
+  # floodprone: 'preprocessed/iso_pre_floodprone.shp'
 
 networks:
   normal: 'normal/nodes_centrality.shp'
@@ -30,12 +34,12 @@ networks:
 
 # choose histogram bar color for the amount of provided flood layer (the first color visualizes the normal scenario):
 # https://www.w3schools.com/colors/colors_picker.asp
-bar_color: ['#ff9900', '#6699ff', '#9900cc']
+bar_color: ['#009900', '#0044cc']
 
 # provide your openrouteservice api key (register for free: 'https://openrouteservice.org/dev/#/signup)
-ors_api_key: 'your-api-key'
+ors_api_key: ''
 
-amenity_osm_values: ['hospital', 'pharmacy', 'doctors', 'clinic']
+amenity_osm_values: ['hospital','clinic']
 iso_range_values: [300, 600, 900, 1200, 1500, 1800]
 
 speed_limits: 'ma_jakarta/scripts/network/speed_limits.yaml'

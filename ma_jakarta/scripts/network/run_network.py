@@ -33,14 +33,16 @@ if chosen_centralities[0] != 'Betweenness' and chosen_centralities[0] != 'Closen
     exit()
 
 if scenario != 'normal':
-    if not path.exists(path.join(NETWORK_DIR, scenario)):
-        mkdir(path.join(NETWORK_DIR, scenario))
-        print('Directory', path.join(NETWORK_DIR, scenario), 'created')
+    if not path.exists(graph_path):
+        mkdir(graph_path)
+        print('Directory', graph_path, 'created')
 
-        complete_graph = nx.read_shp(path.join(NETWORK_DIR, 'normal'))
-        intersect_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][scenario]))
         # intersect normal graph with flood layer
+        complete_graph = nx.read_shp(path.join(NETWORK_DIR, 'normal')).copy()
         network_graph = network_preparation.flood_intersection(complete_graph, graph_path, scenario)
+        # clean complete graph from existing centrality
+        # network_preparation.clean_node_file(scenario)
+        # network_graph = nx.read_shp(graph_path)
         # TODO: intersect with jakarta border?
     else:
         network_graph = nx.read_shp(graph_path)

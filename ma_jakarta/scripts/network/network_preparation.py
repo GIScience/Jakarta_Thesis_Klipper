@@ -1,30 +1,13 @@
 # -*- coding: utf-8 -*-
-from __init__ import BASEDIR, DATA_DIR, SETTINGS
+from __init__ import BASEDIR, DATA_DIR, NETWORK_DIR, SETTINGS
+from ma_jakarta.scripts.data_preprocessing import floods
 import networkx as nx
 import networkit as nkit
 from yaml import safe_load
 from os import path
 import rtree
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import shape, LineString, Point
-from shapely import ops
-
-
-def flood_layer_union(flood_layer):
-    # TODO: rewrite docstring -> fix..
-    """Fix geometry to calculate difference overlay with border layer."""
-
-    flood_geom = []
-    for poly in range(len(flood_layer)):
-        if flood_layer['geometry'][poly] is not None:
-            flood_geom.append(shape(flood_layer['geometry'][poly]))
-    union_l = ops.cascaded_union(flood_geom)
-
-    df = pd.DataFrame(union_l, columns=['geometry'])
-    geodf = gpd.GeoDataFrame(df, geometry='geometry')
-
-    return geodf
 
 
 # TODO: change to flood_difference?
@@ -35,9 +18,11 @@ def flood_intersection(graph, output, scenario):
         :type graph: osmnx or networkx network routing graph with edge and node fil
         :param output: folder path to save output
         :type output: string
+        :param scenario:
         :return: flood networkx graph
         """
     flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][scenario]))
+    flood_union = floods.flood_union(flood_data)
 
     edge_data = list(graph.edges(data=True))
 
@@ -51,7 +36,7 @@ def flood_intersection(graph, output, scenario):
 
     # check intersection and remove affected nodes
     intersect_counter = 0
-    for poly in flood_data['geometry']:
+    for poly in flood_union['geometry']:
         for fid in list(index.intersection(shape(poly).bounds)):
             edge_geom_shape = shape(LineString([Point(edge_data[fid][0]), Point(edge_data[fid][1])]))
             if edge_geom_shape.intersects(shape(poly)):
@@ -77,6 +62,19 @@ def flood_intersection(graph, output, scenario):
     print('Intersected networkx graph saved')
 
     return graph
+
+
+def clean_node_file(scenario):
+    """"""
+    graph_nodes = gpd.read_file(path.join(NETWORK_DIR, scenario, 'nodes.shp'))
+
+    if graph_nodes.btwn:
+        graph_nodes.drop(['btwn'], axis=1)
+    if graph_nodes.cls:
+        graph_nodes.drop(['cls'], axis=1)
+
+    geodf = gpd.GeoDataFrame(graph_nodes, geometry='geometry')
+    geodf.to_file(path.join(NETWORK_DIR, scenario, 'nodes.shp'), driver='ESRI Shapefile')
 
 
 def create_weighted_graph(nx_graph):

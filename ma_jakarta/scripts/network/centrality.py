@@ -50,7 +50,6 @@ class Centrality:
 
     @classmethod
     def restructure_dataframe(cls, nx_graph):
-        # TODO: check enumeration!
         """
         Restructures node data to dataframe by enumerating node elements, inserting data to new created column 'enum_id'
         and converting node geometry to shapely Point.

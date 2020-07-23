@@ -1,10 +1,22 @@
 # -*- coding: utf-8 -*-
 from __init__ import SETTINGS, DATA_DIR
-from ma_jakarta.scripts.data_preprocessing import floods, amenities, population
+from ma_jakarta.scripts.data_preprocessing import floods, amenities, hot_amenities, population
 from os import path, mkdir
 import geopandas as gpd
 import fiona as fn
 import rasterio
+import sys
+
+# TODO: pop raster extract?!
+# TODO: union the input border geojson
+
+hot_data = None
+
+try:
+    hot_data = sys.argv[1]
+except IndexError:
+    pass
+
 
 if not path.exists(path.join(DATA_DIR, 'preprocessed')):
     mkdir(path.join(DATA_DIR, 'preprocessed'))
@@ -40,6 +52,11 @@ try:
     amenity_prep = amenities.Amenities(amenity_data_fn, city_border)
     amenities_preprocessed = amenity_prep.preprocessing(amenities_all)
 
+    if hot_data is not None:
+        # hot_amenities_all = gpd.read_file(path.join(DATA_DIR, SETTINGS['amenities']['normal']))
+        hot_amenity_prep = hot_amenities.HotAmenities(amenities_all)
+        amenities_preprocessed = hot_amenity_prep.run_capacity('normal')
+
     for flood_layer in SETTINGS['flood']['preprocessed']:
         flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][flood_layer]))
         amenities_flooded = path.join(DATA_DIR, SETTINGS['amenities'][flood_layer])
@@ -47,6 +64,7 @@ try:
 
 except Exception as err:
     print(err)
+
 
 try:
     # population
@@ -61,4 +79,3 @@ except Exception as err:
     print(err)
 
 print('Preprocessing done.')
-

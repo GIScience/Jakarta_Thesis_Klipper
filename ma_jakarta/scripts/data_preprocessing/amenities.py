@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import rtree
-from shapely.geometry import Point, shape
-from shapely import ops
+from ma_jakarta.scripts.data_preprocessing import floods
+from shapely.geometry import shape
 import geopandas as gpd
 import pandas as pd
 import logging
+
+# TODO: add all attributes to selected
 
 
 class Amenities:
@@ -57,51 +58,18 @@ class Amenities:
 
         return intersected_amenities
 
-    @ classmethod
-    def flood_layer_union(cls, flood_layer):
-        # TODO: rewrite docstring -> fix..
-        """Fix geometry to calculate difference overlay with border layer. Needed to select flooded amenities"""
-
-        flood_geom = []
-        for poly in range(len(flood_layer)):
-            if flood_layer['geometry'][poly] is not None:
-                flood_geom.append(shape(flood_layer['geometry'][poly]))
-        union_l = ops.cascaded_union(flood_geom)
-
-        df = pd.DataFrame(union_l, columns=['geometry'])
-        geodf = gpd.GeoDataFrame(df, geometry='geometry')
-
-        return geodf
-
     def select_amenities(self, amenities, flood_layer, output):
         """Select floodprone and flood related amenities"""
 
-        r = self.flood_layer_union(flood_layer)
-        not_flooded = gpd.overlay(self.border, r, how='difference')
+        flood_union = floods.flood_union(flood_layer)
+        # not_flooded = gpd.overlay(self.border, r, how='difference')
 
-        # create an empty spatial index object
-        index = rtree.index.Index()
-        counter = 0
-        for amenity in range(len(amenities)):
-            amenity_geom = shape(Point(amenities['geometry'][amenity]))
-            index.insert(counter, amenity_geom.bounds)
-            counter += 1
+        selected_amenities = gpd.overlay(amenities, flood_union, how='difference')
 
-        # check intersection and remove affected nodes
-        selected_amenities = []
-        intersect_counter = 0
-        for poly in not_flooded['geometry']:
-            for fid in list(index.intersection(shape(poly).bounds)):
-                amenity_geom_shape = shape(Point(amenities['geometry'][fid]))
-                if amenity_geom_shape.intersects(shape(poly)):
-                    selected_amenities.append(
-                        [amenities['id_1'][fid], amenities['geometry'][fid], amenities['amenity'][fid]])
-                    intersect_counter += 1
+        # df = pd.DataFrame(selected_amenities, columns=['id', 'geometry', 'amenity'])
+        # geodf = gpd.GeoDataFrame(df, geometry='geometry')
+        selected_amenities.to_file(output, driver='ESRI Shapefile')
 
-        df = pd.DataFrame(selected_amenities, columns=['id', 'geometry', 'amenity'])
-        geodf = gpd.GeoDataFrame(df, geometry='geometry')
-        geodf.to_file(output, driver='ESRI Shapefile')
-
-        logging.info(output, 'saved with', intersect_counter, 'selected amenities')
+        logging.info(output, 'saved with', len(selected_amenities), 'selected amenities')
 
         return selected_amenities

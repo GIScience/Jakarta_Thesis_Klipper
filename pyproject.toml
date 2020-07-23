@@ -20,7 +20,7 @@ cython = "^0.29.15"
 cmake = "^3.16.3"
 networkit = "^6.1"
 IPython = "^7.13.0"
-gdal = "^3.0.4"
+# gdal = "^3.0.4"
 pyyaml = "^5.3"
 ogr2osm = {git = "https://github.com/pnorman/ogr2osm"}
 rasterio = "^1.1.3"

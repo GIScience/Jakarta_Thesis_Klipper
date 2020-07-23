@@ -6,25 +6,12 @@ import pandas as pd
 import geopandas as gpd
 
 
-def floodprone_selection(flood_layer, output=None):
-    """Select and save floodprone related features."""
-
-    prone_features = []
-    for feature in flood_layer:
-        feat_properties = dict(feature['properties'].items())
-        if feat_properties['flood_prone'] == 'yes':
-            prone_features.append(feature)
-
-    if output is not None:
-        with fn.open(output, 'w', driver='ESRI Shapefile', schema=flood_layer.schema) as o_shp:
-            for prone_feat in prone_features:
-                o_shp.write(prone_feat)
-
-
 def flood_union(flood_layer):
     """Dissolve flood layer"""
-    flood_geom = []
+    # create buffer around geometries to remove small fractions
+    flood_layer.geometry = flood_layer.geometry.buffer(0.000001).copy()
 
+    flood_geom = []
     for poly in range(len(flood_layer)):
         if flood_layer['geometry'][poly] is not None:
             flood_geom.append(shape(flood_layer['geometry'][poly]))
@@ -46,4 +33,3 @@ def flood_intersection(input_layer, flood_layer):
     layer_intersection = gpd.overlay(input_layer, flood_layer, how='intersection')
 
     return layer_intersection
-
