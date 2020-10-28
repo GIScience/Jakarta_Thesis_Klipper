@@ -25,6 +25,8 @@ reached:
 networks:
   normal: 'results/normal/nodes_centrality.shp'
   flooded: 'results/flooded/nodes_centrality.shp'
+  btwn_dif: 'results/flooded/nodes_btwn_dif.shp'
+  cls_dif: 'results/flooded/nodes_cls_dif.shp'
 
 # choose histogram bar color for the amount of provided flood layer (the first color visualizes the normal scenario):
 # https://www.w3schools.com/colors/colors_picker.asp
