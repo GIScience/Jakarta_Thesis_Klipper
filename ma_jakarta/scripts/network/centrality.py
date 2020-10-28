@@ -3,24 +3,25 @@ import networkit as nkit
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
-from os import path
 from pprint import pprint
 
 
 class Centrality:
-    """"""
+    """Calculate centrality value for each node and create centrality_file"""
 
-    def __init__(self, graph_path, nkit_graph, nx_graph, centrality_measure, normalized=True):
+    def __init__(self, graph_path, nkit_graph, nx_graph, centrality_measure, scenario_name, normalized=True):
         self.graph_path = graph_path
         self.nkit_graph = nkit_graph
         self.nx_graph = nx_graph
         self.centrality_measure = centrality_measure
+        self.scenario = scenario_name
         self.normalized = normalized
 
-    @classmethod
-    def calculate_centrality(cls, centrality_measure, nkit_graph, normalized):
+    @staticmethod
+    def calculate_centrality(centrality_measure, nkit_graph, normalized):
         """
-        Converts networkx graph to networkit graph, calculates betweenness centrality with nkit and saves results in csv file.
+        Converts networkx graph to networkit graph, calculates betweenness centrality with nkit and
+        saves results in csv file.
         :param normalized:
         :param nkit_graph: network routing graph
         :type nkit_graph: NetworKit graph
@@ -44,12 +45,13 @@ class Centrality:
         print('{} calculated'.format(centrality_measure))
 
         # create dataframe with new enum_id_centrality
-        centrality_scores_df = pd.DataFrame(list(enumerate(centrality_scores)), columns=['enum_id_ce', column_declaration])
+        centrality_scores_df = pd.DataFrame(list(enumerate(centrality_scores)),
+                                            columns=['enum_id_ce', column_declaration])
 
-        return centrality_scores_df, column_declaration
+        return centrality_scores_df
 
-    @classmethod
-    def restructure_dataframe(cls, nx_graph):
+    @staticmethod
+    def restructure_dataframe(nx_graph):
         """
         Restructures node data to dataframe by enumerating node elements, inserting data to new created column 'enum_id'
         and converting node geometry to shapely Point.
@@ -80,21 +82,11 @@ class Centrality:
 
         return node_data_df
 
-    @classmethod
-    def save(cls, graph_path, column_declaration, centrality_df, graph_df):
-        """Join dataframes and save as shapefile."""
-        df = graph_df.merge(centrality_df, on='enum_id_ce')
-        geodf = gpd.GeoDataFrame(df, geometry='geometry')
-        geodf.to_file(path.join(graph_path, 'nodes_' + column_declaration + '.shp'), driver='ESRI Shapefile')
-
-        return geodf
-
     def run(self):
-        """"""
-        centrality_df, column_declaration = self.calculate_centrality(self.centrality_measure, self.nkit_graph, self.normalized)
+        centrality_df = self.calculate_centrality(self.centrality_measure, self.nkit_graph, self.normalized)
         graph_df = self.restructure_dataframe(self.nx_graph)
 
-        df = graph_df.merge(centrality_df, on='enum_id_ce')
+        df = pd.merge(graph_df, centrality_df, on='enum_id_ce')
         geodf = gpd.GeoDataFrame(df, geometry='geometry')
 
         return geodf

@@ -23,8 +23,8 @@ reached:
   flooded: 'preprocessed/iso_pre_flooded.shp'
 
 networks:
-  normal: 'normal/nodes_centrality.shp'
-  flooded: 'flooded/nodes_centrality.shp'
+  normal: 'results/normal/nodes_centrality.shp'
+  flooded: 'results/flooded/nodes_centrality.shp'
 
 # choose histogram bar color for the amount of provided flood layer (the first color visualizes the normal scenario):
 # https://www.w3schools.com/colors/colors_picker.asp

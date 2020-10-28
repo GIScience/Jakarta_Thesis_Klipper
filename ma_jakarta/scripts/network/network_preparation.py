@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __init__ import BASEDIR, DATA_DIR, NETWORK_DIR, SETTINGS
-from ma_jakarta.scripts.data_preprocessing import floods
 import networkx as nx
 import networkit as nkit
 from yaml import safe_load
@@ -10,19 +9,15 @@ import geopandas as gpd
 from shapely.geometry import shape, LineString, Point
 
 
-# TODO: change to flood_difference?
-def flood_intersection(graph, output, scenario):
+def remove_flood_data(graph, output):
     """
-        Intersects network routing graph with flood polygons and removes edges and nodes which are affected by flood.
+        Intersects network routing graph with flood polygons and removes edges and nodes which are affected by the flood.
         :param graph: graph of complete area
-        :type graph: osmnx or networkx network routing graph with edge and node fil
+        :type graph: osmnx or networkx network routing graph with edge and node file
         :param output: folder path to save output
         :type output: string
-        :param scenario:
-        :return: flood networkx graph
         """
-    flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][scenario]))
-    flood_union = floods.flood_union(flood_data)
+    flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed']))
 
     edge_data = list(graph.edges(data=True))
 
@@ -36,7 +31,7 @@ def flood_intersection(graph, output, scenario):
 
     # check intersection and remove affected nodes
     intersect_counter = 0
-    for poly in flood_union['geometry']:
+    for poly in flood_data['geometry']:
         for fid in list(index.intersection(shape(poly).bounds)):
             edge_geom_shape = shape(LineString([Point(edge_data[fid][0]), Point(edge_data[fid][1])]))
             if edge_geom_shape.intersects(shape(poly)):
@@ -46,10 +41,10 @@ def flood_intersection(graph, output, scenario):
                 if graph.has_edge(e, e_to):
                     graph.remove_edge(e, e_to)
                 # remove intersected nodes
-                if Point(edge_data[fid][0]).intersects(shape(poly)) and graph.has_node(e):
+                if Point(e).intersects(shape(poly)) and graph.has_node(e):
                     graph.remove_node(e)
                     intersect_counter += 1
-                if Point(edge_data[fid][1]).intersects(shape(poly)) and graph.has_node(e_to):
+                if Point(e_to).intersects(shape(poly)) and graph.has_node(e_to):
                     graph.remove_node(e_to)
                     intersect_counter += 1
     print('Amount of intersected and removed nodes:', intersect_counter)
@@ -65,13 +60,13 @@ def flood_intersection(graph, output, scenario):
 
 
 def clean_node_file(scenario):
-    """"""
+    """Drop normal scenario's centrality values"""
     graph_nodes = gpd.read_file(path.join(NETWORK_DIR, scenario, 'nodes.shp'))
 
-    if graph_nodes.btwn:
-        graph_nodes.drop(['btwn'], axis=1)
-    if graph_nodes.cls:
-        graph_nodes.drop(['cls'], axis=1)
+    if 'btwn' in graph_nodes:
+        graph_nodes = graph_nodes.drop(['btwn'], axis=1)
+    if 'cls' in graph_nodes:
+        graph_nodes = graph_nodes.drop(['cls'], axis=1)
 
     geodf = gpd.GeoDataFrame(graph_nodes, geometry='geometry')
     geodf.to_file(path.join(NETWORK_DIR, scenario, 'nodes.shp'), driver='ESRI Shapefile')
@@ -88,7 +83,7 @@ def create_weighted_graph(nx_graph):
     nkit_edges = nkit_graph.edges()
     graph_weighted_directed = nkit.Graph(nkit_graph.numberOfNodes(), weighted=True, directed=True)
 
-    # Openrouteservice yaml file with defined speed limits for each road type
+    # openrouteservice yaml file with defined speed limits for each road type
     speed_limit = safe_load(open(path.join(BASEDIR, SETTINGS['speed_limits'])))
 
     for edge, highway, length in zip(nkit_edges, [w[2] for w in nx_graph.edges.data('highway')],
