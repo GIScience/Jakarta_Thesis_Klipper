@@ -1,40 +1,34 @@
-city_border: 'input/jakarta_border.geojson'
+city_border:
+  input: 'input/hd_border.geojson'
+  preprocessed: 'preprocessed/hd_border.shp'
 
 flood:
-  input:
-    flooded: 'input/flooded_layer_v2.shp'
-    floodprone: 'preprocessed/floodprone.shp'
-  preprocessed:
-    flooded: 'input/flooded_layer_v2.shp'
-    floodprone: 'preprocessed/floodprone.shp'
+  input: 'input/flooded.shp'
+  preprocessed: 'preprocessed/flooded.shp'
 
 amenities:
   data: 'input/amenities.geojson'
-  # normal: 'preprocessed/amenities_normal.shp'
-  normal: 'preprocessed/healthsites.shp' # dki
-  # flooded: 'preprocessed/amenities_flooded_v2.shp'
-  flooded: 'preprocessed/healthsites_flooded.shp' # dki
-  floodprone: 'preprocessed/amenities_floodprone.shp'
+  normal: 'preprocessed/healthsites.shp'
+  flooded: 'preprocessed/healthsites_flooded.shp'
+  data_hot: 'input/dki_hs'
 
 population:
   data: 'input/population_2020.tif'
   extract: 'preprocessed/idn_ppp_2020_extract.tif'
   fillnan: 'preprocessed/idn_ppp_2020_extract_fillnan.tif'
 
+# TODO: rename to accessed?
 reached:
   normal: 'results/iso_normal.shp'
   flooded: 'preprocessed/iso_pre_flooded.shp'
-  # flooded: 'results/iso_flooded.shp'
-  # floodprone: 'preprocessed/iso_pre_floodprone.shp'
 
 networks:
   normal: 'normal/nodes_centrality.shp'
   flooded: 'flooded/nodes_centrality.shp'
-  floodprone: 'floodprone/nodes_centrality.shp'
 
 # choose histogram bar color for the amount of provided flood layer (the first color visualizes the normal scenario):
 # https://www.w3schools.com/colors/colors_picker.asp
-bar_color: ['#009900', '#0044cc']
+bar_color: ['orange', '#3366ff']
 
 # provide your openrouteservice api key (register for free: 'https://openrouteservice.org/dev/#/signup)
 ors_api_key: ''

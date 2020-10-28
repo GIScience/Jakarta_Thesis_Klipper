@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import fiona as fn
 import rasterio
 import rasterio.mask
 
 
 def extract_raster_part(pop_raster, border, output):
-    """Extract raster part for Jakarta admin border."""
+    """Extract raster part of city area"""
 
     border_shape = [feature["geometry"] for feature in border]
 

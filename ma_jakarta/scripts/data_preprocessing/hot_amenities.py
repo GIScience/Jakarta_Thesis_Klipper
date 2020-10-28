@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-from __init__ import SETTINGS, DATA_DIR
-from os import path
 import geopandas as gpd
 import pandas as pd
-import logging
+import numpy as np
 
 
 class HotAmenities:
-    """Data preparation for HOT provided healthcare data"""
+    """Data preparation of HOT provided health care data"""
 
     def __init__(self, amenities):
         self.amenities = amenities
 
-    def categorize_capacity(self, row):
+    @staticmethod
+    def categorize_capacity(row):
+        """Categorize and group bed capacities"""
 
         if row['capacity_p'] is None:
             val = None
@@ -37,8 +37,9 @@ class HotAmenities:
 
         return val
 
-    def cap_mean(self, input_df):
-        """Define approx. bed amount of all given value ranges to fill null values """
+    @staticmethod
+    def cap_mean(input_df):
+        """Define approx. bed amount of all given value ranges to fill null values"""
 
         hs_mean = 0
         counter = 0
@@ -57,13 +58,19 @@ class HotAmenities:
                     hs_mean += (val - (val * 0.1))
                     counter += 1
                 else:
-                    val = int(row)
-                    hs_mean += val
-                    counter += 1
+                    try:
+                        val = int(row)
+                        hs_mean += val
+                        counter += 1
+                    except ValueError:
+                        val = [int(s) for s in row.split() if s.isdigit()]
+                        hs_mean += val[0]
+                        counter += 1
 
         return round(hs_mean / counter)
 
-    def cap_value(self, input_df):
+    @staticmethod
+    def cap_value(input_df):
         """Define approx. bed amount for each value range"""
 
         value_list = []
@@ -80,8 +87,12 @@ class HotAmenities:
                     val = int(row_cap.split('<')[1])
                     value_list.append([row_id, int((val - (val * 0.1)))])
                 else:
-                    val = int(row_cap)
-                    value_list.append([row_id, val])
+                    try:
+                        val = int(row_cap)
+                        value_list.append([row_id, val])
+                    except ValueError:
+                        val = [int(s) for s in row_cap.split() if s.isdigit()]
+                        value_list.append([row_id, val[0]])
 
         value_df = pd.DataFrame(value_list, columns=['osm_way_id', 'cap_int'])
 
@@ -89,23 +100,32 @@ class HotAmenities:
 
         return result_df
 
-    def run_capacity(self, scenario):
-        hosp = self.amenities.loc[self.amenities.amenity == 'hospital']
+    def run_capacity(self):
+
+        # replace nan values with None type for better handling
+        self.amenities['capacity_p'] = self.amenities['capacity_p'].where(self.amenities['capacity_p'].notnull(), None)
+
+        # Fill null values with mean value of given bed amount
+        hosp = self.amenities.loc[self.amenities.amenity == 'hospital'].copy()
         nan_hosp_mean = self.cap_mean(hosp)
         hosp['capacity_p'].fillna(str(nan_hosp_mean), inplace=True)
 
-        clinic = self.amenities.loc[self.amenities.amenity == 'clinic']
+        clinic = self.amenities.loc[self.amenities.amenity == 'clinic'].copy()
         nan_clinic_mean = self.cap_mean(clinic)
         clinic['capacity_p'].fillna(str(nan_clinic_mean), inplace=True)
 
         complete_df = pd.concat([hosp, clinic])
 
-        extended_df = complete_df.assign(cap_cat=complete_df.apply(self.categorize_capacity, axis=1))
+        # assign each health site with capacity group
+        extended_df = complete_df.assign(cap_cat=complete_df.apply(self.categorize_capacity, axis=1)).copy()
+        # complete missing osm_ids with osm_way_ids and vice versa
+        extended_df['osm_id'] = np.where(extended_df['osm_id'].isnull(),
+                                         extended_df['osm_way_id'], extended_df['osm_id'])
+        extended_df['osm_way_id'] = np.where(extended_df['osm_way_id'].isnull(),
+                                             extended_df['osm_id'], extended_df['osm_way_id'])
 
         cap_df = self.cap_value(extended_df)
-        geodf = gpd.GeoDataFrame(cap_df, geometry='geometry')
-        geodf.to_file(path.join(DATA_DIR, SETTINGS['amenities'][scenario]), driver='ESRI Shapefile')
 
-        logging.info(geodf, 'saved')
+        geodf = gpd.GeoDataFrame(cap_df, geometry='geometry')
 
         return geodf

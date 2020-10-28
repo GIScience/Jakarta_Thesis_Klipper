@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import fiona as fn
-from shapely.geometry import mapping, shape
+from shapely.geometry import shape
 from shapely import ops
 import pandas as pd
 import geopandas as gpd
@@ -24,12 +23,11 @@ def flood_union(flood_layer):
     return geodf
 
 
-def flood_intersection(input_layer, flood_layer):
+def flood_difference(input_layer, flood_layer):
     """
-    Calculate intersection of given input layer (e.g. city border or isochrones) and flood scenario.
+    Calculate difference of given input layer (e.g. city border or isochrones) and flood scenario.
     https://geopandas.org/set_operations.html
     """
+    layer_difference = gpd.overlay(input_layer, flood_layer, how='difference')
 
-    layer_intersection = gpd.overlay(input_layer, flood_layer, how='intersection')
-
-    return layer_intersection
+    return layer_difference

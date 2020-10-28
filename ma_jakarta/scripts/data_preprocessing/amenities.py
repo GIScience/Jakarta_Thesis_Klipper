@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-from ma_jakarta.scripts.data_preprocessing import floods
+from __init__ import border_crs
 from shapely.geometry import shape
 import geopandas as gpd
 import pandas as pd
-import logging
-
-# TODO: add all attributes to selected
 
 
 class Amenities:
@@ -15,19 +12,17 @@ class Amenities:
         self.amenities = amenities
         self.border = border
 
-    def preprocessing(self, amenities_output):
-        """Calculate amenities centroid, select objects laying within administrative border, save locally"""
+    def preprocessing(self):
+        """Calculate centroids of amenities and select objects laying within administrative border"""
 
         amenities_centroid = self.calculate_centroid()
         amenities_geodf = self.create_geodataframe(amenities_centroid)
-        jakarta_amenities = self.intersect_with_border(amenities_geodf, amenities_output)
-
-        logging.info(amenities_output, 'saved')
+        jakarta_amenities = self.intersect_with_border(amenities_geodf)
 
         return jakarta_amenities
 
     def calculate_centroid(self):
-        """"""
+        """Calculate centroids of amenities"""
         centroid_feature = []
         for feature in self.amenities:
             feat_geometry = feature['geometry']
@@ -39,7 +34,7 @@ class Amenities:
         return centroid_feature
 
     def create_geodataframe(self, centroid_feature):
-        """Save shapefile locally."""
+        """Convert dataframe to geodataframe"""
 
         schema = self.amenities.schema
         column_names = list(schema['properties'].keys())
@@ -50,26 +45,18 @@ class Amenities:
 
         return geodf
 
-    def intersect_with_border(self, amenities_centroid, amenities_output):
-        """Select amenities which are within the administrative jakarta border."""
+    def intersect_with_border(self, amenities_centroid):
+        """Select amenities which are within the administrative city border"""
 
+        amenities_centroid.crs = border_crs
+        self.border.crs = amenities_centroid.crs
         intersected_amenities = gpd.overlay(amenities_centroid, self.border, how='intersection')
-        intersected_amenities.to_file(amenities_output, driver='ESRI Shapefile')
 
         return intersected_amenities
 
-    def select_amenities(self, amenities, flood_layer, output):
-        """Select floodprone and flood related amenities"""
+    def select_amenities(self, amenities, flood_layer):
+        """Select not flooded related amenities"""
 
-        flood_union = floods.flood_union(flood_layer)
-        # not_flooded = gpd.overlay(self.border, r, how='difference')
-
-        selected_amenities = gpd.overlay(amenities, flood_union, how='difference')
-
-        # df = pd.DataFrame(selected_amenities, columns=['id', 'geometry', 'amenity'])
-        # geodf = gpd.GeoDataFrame(df, geometry='geometry')
-        selected_amenities.to_file(output, driver='ESRI Shapefile')
-
-        logging.info(output, 'saved with', len(selected_amenities), 'selected amenities')
+        selected_amenities = gpd.overlay(amenities, flood_layer, how='difference')
 
         return selected_amenities
