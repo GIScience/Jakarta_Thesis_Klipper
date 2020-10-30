@@ -7,6 +7,7 @@ import pandas as pd
 import fiona as fn
 import rasterio
 import sys
+import logging
 
 
 if __name__ == '__main__':
@@ -34,8 +35,7 @@ if __name__ == '__main__':
         print(SETTINGS['city_border']['preprocessed'], 'saved.')
 
     except Exception as err:
-        print(err)
-        sys.exit()
+        logging.error(err)
 
     try:
         # flood
@@ -43,14 +43,11 @@ if __name__ == '__main__':
         flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['input']))
 
         flood_union = floods.flood_union(flood_data)
-        flood_city_difference = floods.flood_difference(city_border, flood_union)
-
-        flood_city_difference.to_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed']), driver='ESRI Shapefile')
+        flood_union.to_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed']), driver='ESRI Shapefile')
         print(SETTINGS['flood']['preprocessed'], 'saved.')
 
     except Exception as err:
-        print(err)
-        sys.exit()
+        logging.error(err)
 
     try:
         # amenities
@@ -95,8 +92,7 @@ if __name__ == '__main__':
         print(SETTINGS['amenities']['flooded'], 'saved.')
 
     except Exception as err:
-        print(err)
-        sys.exit()
+        logging.error(err)
 
     try:
         # population
@@ -109,5 +105,4 @@ if __name__ == '__main__':
         print(SETTINGS['population']['data'], 'saved.')
 
     except Exception as err:
-        print(err)
-        sys.exit()
+        logging.error(err)
