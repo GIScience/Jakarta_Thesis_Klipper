@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from __init__ import DATA_DIR, NETWORK_DIR, SETTINGS
-from shapely.geometry import mapping, shape
-from shapely import ops
+from __init__ import SETTINGS
+from shapely.geometry import mapping
 import pandas as pd
 import geopandas as gpd
-from os import path
 from area import area
 from rasterstats import zonal_stats
 
@@ -24,16 +22,6 @@ def dissolve_layer(iso_layer):
     return result_merged
 
 
-def flood_difference(iso_dissolved, scenario):
-    """Calculates difference of isochrones and flood areas.
-            Needed due to wrongly created areas due to simplification in isochrone algorithm."""
-    flood_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['flood']['preprocessed'][scenario]))
-
-    iso_intersected = gpd.overlay(iso_dissolved, flood_data, how='difference')
-
-    return iso_intersected
-
-
 def reached_area(iso_layer):
     """Calculate reached area"""
     amenities = SETTINGS['amenity_osm_values']
@@ -49,9 +37,15 @@ def reached_area(iso_layer):
     return area_data
 
 
-def reached_pop(iso_layer):
+def total_city_area(city_layer):
+    """Calculate total city area size"""
+    city_area = area(city_layer[0]['geometry'])
+
+    return city_area
+
+
+def reached_pop(pop_raster, iso_layer):
     """Calculate population sum per isochrone."""
-    pop_raster = path.join(DATA_DIR, SETTINGS['population']['extract'])
     amenities = SETTINGS['amenity_osm_values']
     range_values = SETTINGS['iso_range_values']
     pop_data = {}
@@ -70,21 +64,8 @@ def reached_pop(iso_layer):
     return pop_data
 
 
-def reached_nodes(iso_layer, scenario):
-    """Caluclate reached nodes and mean centrality per isochrone."""
-    gdf_iso = gpd.GeoDataFrame(iso_layer, geometry='geometry')
-    gdf_nodes = gpd.read_file(path.join(NETWORK_DIR, SETTINGS['networks'][scenario]))
+def total_city_pop(pop_raster, city_layer):
+    """Calculate amount of total city population"""
+    stats = zonal_stats(city_layer[0]['geometry'], pop_raster, stats=['sum'])
 
-    # spatial join of normal and flood layer
-    gdf_joined = gpd.sjoin(gdf_nodes, gdf_iso, how="left", op='within')
-
-    # calculate reached nodes, mean betweenness and mean closeness centrality
-    nodes_amount = pd.DataFrame({'amount': gdf_joined.groupby(['amenity', 'value']).size()}).reset_index()
-    btwn_mean = gdf_joined.groupby(['amenity', 'value'], as_index=False)['btwn'].mean()
-    cls_mean = gdf_joined.groupby(['amenity', 'value'], as_index=False)['cls'].mean()
-
-    nodes_amount['scenario'] = scenario
-    btwn_mean['scenario'] = scenario
-    cls_mean['scenario'] = scenario
-
-    return nodes_amount, btwn_mean, cls_mean
+    return stats[0]['sum']
