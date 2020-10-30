@@ -6,43 +6,25 @@ import sys
 import logging
 
 
-def top_x_nodes(centrality, percent, notnull=True):
-    """Calculates one or ten percent of total node amount"""
-    centrality_acronym = None
-    column_normal = None
-    column_flooded = None
+def top_x_nodes(node_df, acronym, percent, notnull=True):
+    """Calculates x percent of total node amount"""
 
-    if centrality == 'betweenness' or centrality == 'Betweenness' or centrality == 'btwn':
-        centrality_acronym = 'btwn'
-        column_normal = 'btwn_n'
-        column_flooded = 'btwn_f'
-    elif centrality == 'closeness' or centrality == 'Closeness' or centrality == 'cls':
-        centrality_acronym = 'cls'
-        column_normal = 'cls_n'
-        column_flooded = 'cls_f'
-
-    # file consists of all nodes within normal scenario
-    node_df = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks'][centrality_acronym + '_dif']))
-    # select best rated one/ten percent -> one/ten percent of total amount
-    normal_top_x = node_df.nlargest(int(len(node_df) * (percent / 100)), column_normal)
-    flooded_top_x = node_df.nlargest(int(len(node_df) * (percent / 100)), column_flooded)
+    # select best rated x percent -> one/ten percent of total amount
+    normal_top_x = node_df.nlargest(int(len(node_df) * (percent / 100)), acronym + '_n')
+    flooded_top_x = node_df.nlargest(int(len(node_df) * (percent / 100)), acronym + '_f')
 
     # 'in_n_f' = in normal and flooded foreground network
-    normal_top_x.loc[normal_top_x.osmid.isin(flooded_top_x.osmid), 'in_n_f'] = normal_top_x[
-        centrality_acronym + '_dif']
+    normal_top_x.loc[normal_top_x.osmid.isin(flooded_top_x.osmid), 'in_n_f'] = normal_top_x[acronym + '_dif']
 
     if notnull is True:
         # if node is flooded = -999
-        normal_top_x.loc[pd.isna(normal_top_x[column_flooded]), 'in_n_f'] = -999
+        normal_top_x.loc[pd.isna(normal_top_x[acronym + '_f']), 'in_n_f'] = -999
         # if node is not flooded but not in top x percent
         normal_top_x['in_n_f'].fillna(999, inplace=True)
 
-    geodf = gpd.GeoDataFrame(normal_top_x, geometry='geometry')
-    geodf.to_file(path.join(DATA_DIR,
-                            'results/flooded', 'nodes_' + centrality_acronym + '_top_' + str(percent) + '.shp'),
-                  driver='ESRI Shapefile')
+    top_x_geodf = gpd.GeoDataFrame(normal_top_x, geometry='geometry')
 
-    return normal_top_x
+    return top_x_geodf
 
 
 def sameness(normal_top_ten, centrality):
@@ -64,6 +46,7 @@ def sameness(normal_top_ten, centrality):
 if __name__ == '__main__':
 
     centrality_input = None
+    centrality_acronym = None
 
     try:
         centrality_input = str(sys.argv[1])
@@ -74,8 +57,29 @@ if __name__ == '__main__':
         logging.error('Please provide one centrality name, e.g. Betweenness or Closeness.')
         exit()
 
-    top_x_nodes(centrality_input, 1)
-    top_10_percent_nodes = top_x_nodes(centrality_input, 10)
-    print('column name in_n_f = in normal and flooded foreground network \n'
+    # define acronym for centrality input
+    centrality_acronym = ['btwn' if centrality_input == 'Betweenness' else 'cls'][0]
+
+    # file consists of all nodes within normal scenario
+    node_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks'][centrality_acronym + '_dif']))
+
+    # calculate for one percent
+    top_1_percent_nodes = top_x_nodes(node_data, centrality_acronym, 1)
+    top_1_percent_nodes.to_file(path.join(DATA_DIR, SETTINGS['networks']['path'], 'flooded',
+                                          'nodes_' + centrality_acronym + '_top_' + str(1) + '.shp'),
+                                driver='ESRI Shapefile')
+    print(path.join(DATA_DIR, SETTINGS['networks']['path'], 'flooded',
+                    'nodes_' + centrality_acronym + '_top_' + str(1) + '.shp'))
+
+    # calculate for ten percent
+    top_10_percent_nodes = top_x_nodes(node_data, centrality_acronym, 10)
+    top_10_percent_nodes.to_file(path.join(DATA_DIR, SETTINGS['networks']['path'], 'flooded',
+                                           'nodes_' + centrality_acronym + '_top_' + str(10) + '.shp'),
+                                 driver='ESRI Shapefile')
+    print(path.join(DATA_DIR, SETTINGS['networks']['path'], 'flooded',
+                    'nodes_' + centrality_acronym + '_top_' + str(10) + '.shp'))
+
+    print('Column and data explanation: \n'
+          'column name in_n_f = in normal and flooded foreground network \n'
           '-999 = node is flooded \n999 = node is not flooded but not in top x percent')
     sameness(top_10_percent_nodes, centrality_input)
