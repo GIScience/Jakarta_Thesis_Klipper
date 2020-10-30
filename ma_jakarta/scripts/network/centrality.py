@@ -7,7 +7,7 @@ from pprint import pprint
 
 
 class Centrality:
-    """Calculate centrality value for each node and create centrality_file"""
+    """Centrality value calculation for each node and creation of centrality output file"""
 
     def __init__(self, graph_path, nkit_graph, nx_graph, centrality_measure, scenario_name, normalized=True):
         self.graph_path = graph_path

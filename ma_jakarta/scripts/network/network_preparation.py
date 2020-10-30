@@ -60,7 +60,7 @@ def remove_flood_data(graph, output):
 
 
 def clean_node_file(scenario):
-    """Drop normal scenario's centrality values"""
+    """Drop existing scenario's centrality values"""
     graph_nodes = gpd.read_file(path.join(NETWORK_DIR, scenario, 'nodes.shp'))
 
     if 'btwn' in graph_nodes:

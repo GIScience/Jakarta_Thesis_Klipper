@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __init__ import DATA_DIR, NETWORK_DIR
+from __init__ import DATA_DIR, NETWORK_DIR, SETTINGS
 from ma_jakarta.scripts.network import network_preparation, centrality
 from os import path, mkdir
 import networkx as nx
@@ -28,9 +28,13 @@ if __name__ == '__main__':
         pass
 
     graph_path = str(path.join(NETWORK_DIR, scenario))
-    output_path = str(path.join(DATA_DIR, 'results', scenario))
-    if not path.exists(output_path):
-        mkdir(output_path)
+    centrality_path = str(path.join(DATA_DIR, SETTINGS['networks']['path'], scenario))
+    if not path.exists(path.join(DATA_DIR, SETTINGS['networks']['path'])):
+        mkdir(path.join(DATA_DIR, SETTINGS['networks']['path']))
+        print('Directory', path.join(DATA_DIR, SETTINGS['networks']['path']), 'created')
+    if not path.exists(centrality_path):
+        mkdir(path.join(centrality_path))
+        print('Directory', centrality_path, 'created')
 
     if chosen_centralities[0] != 'Betweenness' and chosen_centralities[0] != 'Closeness':
         logging.error('Please choose either Betweenness, Closeness or both as centrality methods.')
@@ -70,5 +74,5 @@ if __name__ == '__main__':
 
     # save as new shapefile
     merged_geodf = gpd.GeoDataFrame(calculated_cent[0], geometry='geometry')
-    merged_geodf.to_file(path.join(output_path, 'nodes_centrality.shp'), driver='ESRI Shapefile')
-    print('Centrality saved:', path.join(output_path, 'nodes_centrality.shp'))
+    merged_geodf.to_file(path.join(centrality_path, 'nodes_centrality.shp'), driver='ESRI Shapefile')
+    print('Centrality saved:', path.join(centrality_path, 'nodes_centrality.shp'))
