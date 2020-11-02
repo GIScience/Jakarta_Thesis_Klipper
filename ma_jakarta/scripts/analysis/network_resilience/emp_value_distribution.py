@@ -23,6 +23,7 @@ def autolabel(rects, ax, color):
 
 def histogram_centrality(acronym, axis_label, round_value, first_scenario, second_scenario=None):
     """Creates histogram with normal and flooded centrality node values"""
+    data_color = SETTINGS['data_color']
     n_bins = 10
     bin_edges = []
     label_list = []
@@ -30,7 +31,7 @@ def histogram_centrality(acronym, axis_label, round_value, first_scenario, secon
 
     # Plot the figure
     first_centrality = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks'][first_scenario]))
-    first_color = ['orange' if first_scenario == 'normal' else '#3366ff']
+    first_color = [data_color['normal'] if first_scenario == 'normal' else data_color['flooded']][0]
 
     min_bin_edge = first_centrality[acronym].max()/10
     for i in range(0, n_bins+1):
@@ -49,12 +50,12 @@ def histogram_centrality(acronym, axis_label, round_value, first_scenario, secon
 
     # create histogram entry
     rects1 = ax.bar(np.array(bin_edges[1:]) - width / 2, first_bin_amount[acronym], width,
-                    label=first_scenario + ' scenario', color=first_color[0], edgecolor='black', linewidth=0.4)
-    autolabel(rects1, ax, first_color[0])
+                    label=first_scenario + ' scenario', color=first_color, edgecolor='black', linewidth=0.4)
+    autolabel(rects1, ax, first_color)
 
     if second_scenario is not None:
         second_centrality = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks'][second_scenario]))
-        second_color = ['orange' if second_scenario == 'normal' else '#3366ff']
+        second_color = [data_color['normal'] if second_scenario == 'normal' else data_color['flooded']][0]
 
         # redefine histogram properties in case that disaster values increases
         if second_centrality[acronym].max() > first_centrality[acronym].max():
@@ -79,9 +80,9 @@ def histogram_centrality(acronym, axis_label, round_value, first_scenario, secon
 
             # create histogram entry
             rects2 = ax.bar(np.array(bin_edges_extended[1:]) + width / 2, second_bin_amount[acronym], width,
-                            label=second_scenario + ' scenario', color=second_color[0], edgecolor='black',
+                            label=second_scenario + ' scenario', color=second_color, edgecolor='black',
                             linewidth=0.4)
-            autolabel(rects2, ax, second_color[0])
+            autolabel(rects2, ax, second_color)
 
             ax.set_xticks(bin_edges_extended[1:])
             ax.set_xticklabels(label_list_extended)
@@ -94,9 +95,9 @@ def histogram_centrality(acronym, axis_label, round_value, first_scenario, secon
 
             # create histogram entry
             rects2 = ax.bar(np.array(bin_edges[1:]) + width / 2, second_bin_amount[acronym], width,
-                            label=second_scenario + ' scenario', color=second_color[0],
+                            label=second_scenario + ' scenario', color=second_color,
                             edgecolor='black', linewidth=0.4)
-            autolabel(rects2, ax, second_color[0])
+            autolabel(rects2, ax, second_color)
 
             ax.set_xticks(bin_edges[1:])
             ax.set_xticklabels(label_list)
@@ -120,6 +121,8 @@ def histogram_centrality(acronym, axis_label, round_value, first_scenario, secon
 
 def cumulative_distribution(acronym, text_x_coord):
     """Create CDF with normal and flooded centrality node values"""
+    data_color = SETTINGS['data_color']
+
     node_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks']['normal']))
     node_data2 = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks']['flooded']))
 
@@ -133,12 +136,12 @@ def cumulative_distribution(acronym, text_x_coord):
 
     # plot the sorted data:
     if acronym == 'cls':
-        plt.plot(data_sorted, p, label='normal scenario', color='orange')
-        plt.plot(data_sorted2, p2, label='flooded scenario', color='#3366ff')
+        plt.plot(data_sorted, p, label='normal scenario', color=data_color['normal'])
+        plt.plot(data_sorted2, p2, label='flooded scenario', color=data_color['flooded'])
         plt.xlabel('HC node value')
     elif acronym == 'btwn':
-        plt.plot(data_sorted2, p2, label='flooded scenario', color='#3366ff')
-        plt.plot(data_sorted, p, label='normal scenario', color='orange')
+        plt.plot(data_sorted2, p2, label='flooded scenario', color=data_color['flooded'])
+        plt.plot(data_sorted, p, label='normal scenario', color=data_color['normal'])
         plt.xlabel('BC node value')
 
     plt.ylabel('Relative cumulative share of nodes')
@@ -177,7 +180,7 @@ if __name__ == '__main__':
         centrality_name = str(sys.argv[1])
     except IndexError:
         logging.error('Please provide a centrality name, e.g., Betweenness or Closeness.')
-        exit()
+        sys.exit(1)
 
     # recommendation for jakarta thesis data: 0.0034 for Betweenness and 2.2 for Closeness
     text_x_coordinates = [0.01 if centrality_name == 'Betweenness' else 17][0]
@@ -200,7 +203,7 @@ if __name__ == '__main__':
         centrality_round_value = 3
     else:
         logging.error('Please provide a valid centrality name, e.g., Betweenness or Closeness.')
-        exit()
+        sys.exit(1)
 
     cumulative_distribution(centrality_acronym, text_x_coordinates)
     print('CDF results saved.')
