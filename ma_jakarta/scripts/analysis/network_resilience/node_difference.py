@@ -46,11 +46,11 @@ if __name__ == '__main__':
             pass
     except IndexError:
         logging.error('Please provide at least one centrality name, e.g. Betweenness, Closeness or both.')
-        exit()
+        sys.exit(1)
 
     if 'Betweenness' not in centrality_input and 'Closeness' not in centrality_input:
         logging.error('Please provide at least one centrality name, e.g. Betweenness, Closeness or both.')
-        exit()
+        sys.exit(1)
 
     normal_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks']['normal']))
     flooded_data = gpd.read_file(path.join(DATA_DIR, SETTINGS['networks']['flooded']))

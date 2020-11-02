@@ -19,7 +19,7 @@ if __name__ == '__main__':
         chosen_centralities.append(str(sys.argv[2]))
     except IndexError:
         logging.error('Please provide a graph name and at least one centrality name, e.g. normal Betweenness.')
-        exit()
+        sys.exit(1)
 
     # if two centrality arguments are provided by the user; optional argument
     try:
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     if chosen_centralities[0] != 'Betweenness' and chosen_centralities[0] != 'Closeness':
         logging.error('Please choose either Betweenness, Closeness or both as centrality methods.')
-        exit()
+        sys.exit(1)
 
     if scenario != 'normal':
         if not path.exists(graph_path):

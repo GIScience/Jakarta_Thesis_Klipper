@@ -52,10 +52,11 @@ if __name__ == '__main__':
         centrality_input = str(sys.argv[1])
     except KeyError:
         logging.error('Please provide one centrality name, e.g., Betweenness or Closeness.')
+        sys.exit(1)
 
     if 'Betweenness' not in centrality_input and 'Closeness' not in centrality_input:
         logging.error('Please provide one centrality name, e.g. Betweenness or Closeness.')
-        exit()
+        sys.exit(1)
 
     # define acronym for centrality input
     centrality_acronym = ['btwn' if centrality_input == 'Betweenness' else 'cls'][0]

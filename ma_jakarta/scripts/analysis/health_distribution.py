@@ -155,7 +155,7 @@ if __name__ == '__main__':
         scenario_name = str(sys.argv[1])
     except KeyError:
         logging.error('Please provide one scenario name, defined in settings.yml > networks, e.g. normal or flooded')
-        exit()
+        sys.exit(1)
 
     try:
         hs_analysis_list.append(str(sys.argv[2]))
@@ -166,7 +166,7 @@ if __name__ == '__main__':
             pass
     except KeyError:
         logging.error('Please provide at least one analysis calculation, e.g., health_location or bed_capacity.')
-        exit()
+        sys.exit(1)
 
     # input data
     amenity_input = gpd.read_file(path.join(DATA_DIR, SETTINGS['amenities'][scenario_name]))

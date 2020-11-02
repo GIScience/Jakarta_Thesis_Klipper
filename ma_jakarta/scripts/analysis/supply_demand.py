@@ -21,7 +21,7 @@ def add_capacity_data(scenario, amenity_type, range_value):
     if scenario == 'normal':
         iso_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS['isochrones'][scenario]))
     elif scenario == 'flooded':
-        iso_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS['isochrones']['pre_' +scenario]))
+        iso_layer = gpd.read_file(path.join(DATA_DIR, SETTINGS['isochrones']['pre_' + scenario]))
     iso_hosp = iso_layer.loc[iso_layer.amenity == amenity_type].copy()
     iso_hosp_value = iso_hosp.loc[iso_hosp.value == range_value].copy()
 
@@ -236,16 +236,18 @@ if __name__ == '__main__':
     percentile_value_input = None
 
     try:
-        analysis_part = str(sys.argv[1])
-    except KeyError:
-        logging.error('')
+        calculation_step = str(sys.argv[1])
+    except IndexError:
+        logging.error('Please provide a calculation_step, e.g., analysis or stats.')
+        sys.exit(1)
 
     if analysis_part == 'analysis':
 
         try:
             scenario_name = str(sys.argv[2])
-        except KeyError:
+        except IndexError:
             logging.error('Please provide one scenario name, e.g., normal or flooded.')
+            sys.exit(1)
 
         try:
             amenity_type_input = str(sys.argv[3])
@@ -289,7 +291,7 @@ if __name__ == '__main__':
 
             # save impact data
             impact_result_city.to_file(path.join(DATA_DIR, SETTINGS['supply_demand']['path_results'],
-                                            SETTINGS['supply_demand']['impact']), driver='ESRI Shapefile')
+                                                 SETTINGS['supply_demand']['impact']), driver='ESRI Shapefile')
             print(path.join(DATA_DIR, SETTINGS['supply_demand']['path_results'], SETTINGS['supply_demand']['impact']),
                   'saved')
 
@@ -301,11 +303,13 @@ if __name__ == '__main__':
             logging.error('Please provide a valid column name of the processed file:',
                           path.join(DATA_DIR, SETTINGS['supply_demand']['path_results'],
                                     SETTINGS['supply_demand']['flooded']))
+            sys.exit(1)
 
         try:
             percentile_value_input = sys.argv[3]
         except IndexError:
             logging.error('Please provide a percentile between 0 and 100.')
+            sys.exit(1)
 
         # load processed impact file
         impact_geodf = gpd.read_file(path.join(DATA_DIR, SETTINGS['supply_demand']['path_results'],
