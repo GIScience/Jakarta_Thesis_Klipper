@@ -13,7 +13,7 @@ def dissolve_layer(iso_layer):
     dis_layer = []
 
     for amenity in amenities:
-        iso_amenities = iso_layer[iso_layer['amenity'] == amenity]
+        iso_amenities = iso_layer[iso_layer['amenity'] == amenity].copy()
         iso_dissolved = iso_amenities.dissolve(by='value', as_index=False)
         dis_layer.append(iso_dissolved)
 

@@ -15,17 +15,18 @@ def punch_layer(iso_df, scenario):
         amenity_df = iso_df.loc[iso_df['amenity'] == amenity]
         for i in range(len(amenity_df)):
             if i == 0:  # value = 300
-                dif_object.append([amenity_df.loc[i]['value'], amenity_df.loc[i]['geometry'], amenity_df.loc[i]['id'],
+                dif_object.append([amenity_df.loc[i]['value'], amenity_df.loc[i]['geometry'],
+                                   amenity_df.loc[i]['amenity_id'],
                                    amenity_df.loc[i]['iso_id'], amenity_df.loc[i]['amenity']])
             else:
                 if amenity_df.loc[i]['geometry'].difference(amenity_df.loc[i - 1]['geometry']).is_empty:
                     dif_geom = None
                 else:
                     dif_geom = amenity_df.loc[i]['geometry'].difference(amenity_df.loc[i - 1]['geometry'])
-                dif_object.append([amenity_df.loc[i]['value'], dif_geom,
-                                   amenity_df.loc[i]['id'], amenity_df.loc[i]['iso_id'], amenity_df.loc[i]['amenity']])
+                dif_object.append([amenity_df.loc[i]['value'], dif_geom, amenity_df.loc[i]['amenity_id'],
+                                   amenity_df.loc[i]['iso_id'], amenity_df.loc[i]['amenity']])
 
-        amenity_df_modi = pd.DataFrame(dif_object, columns=['value', 'geometry', 'id', 'iso_id', 'amenity'])
+        amenity_df_modi = pd.DataFrame(dif_object, columns=['value', 'geometry', 'amenity_id', 'iso_id', 'amenity'])
         amenity_geodf = gpd.GeoDataFrame(amenity_df_modi, geometry='geometry')
         punched_dir.append(amenity_geodf)
 

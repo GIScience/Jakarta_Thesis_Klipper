@@ -13,19 +13,26 @@ def autolabel(rects, ax):
 
 def create_histogram(city_area_size, df, amenity_type, ax, y_label, title, y_rounding):
     """Create histogram for reached/accessed area and population"""
-    bar_color = SETTINGS['bar_color']
+    bar_color = SETTINGS['data_color']
+    iso_range_values = SETTINGS['iso_range_values']
     amenity_data = []
-    ind = np.arange(6)
+    x_labels = []
+    ind = np.arange(len(iso_range_values))
     width = 0.3
     rects = []
 
     for scenario in df:
         amenity_data.append(list(df[scenario][amenity_type].values()))
 
-    x_labels = ['0 - <=5', '>5 - <=10', '>10 - <=15', '>15 - <=20', '>20 - <=25', '>25 - <=30']
+    # define x labels based on given isochrone value ranges
+    for i in range(len(iso_range_values)):
+        if i == 0:
+            x_labels.append('0 - <=' + str(int(iso_range_values[i] / 60)))
+        else:
+            x_labels.append('>' + str(int(iso_range_values[i - 1] / 60)) + ' - <=' + str(int(iso_range_values[i] / 60)))
 
-    rects.append([ax.bar(ind - width/2, amenity_data[0], width, color=bar_color[0], edgecolor='black')])
-    rects.append([ax.bar(ind + width/2, amenity_data[1], width, color=bar_color[1], edgecolor='black')])
+    rects.append([ax.bar(ind - width/2, amenity_data[0], width, color=bar_color['normal'], edgecolor='black')])
+    rects.append([ax.bar(ind + width/2, amenity_data[1], width, color=bar_color['flooded'], edgecolor='black')])
     rects.append([ax.axhline(y=city_area_size, color='#2eb82e', linestyle='-')])
 
     ax.set_ylabel(y_label)
