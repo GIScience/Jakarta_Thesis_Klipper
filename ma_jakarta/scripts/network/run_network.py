@@ -46,7 +46,7 @@ if __name__ == '__main__':
             print('Directory', graph_path, 'created')
 
             # intersect normal graph with flood layer
-            complete_graph = nx.read_shp(path.join(NETWORK_DIR, 'normal')).copy()
+            complete_graph = nx.read_shp(path.join(NETWORK_DIR, scenario)).copy()
             network_preparation.remove_flood_data(complete_graph, graph_path)
             # clean graph from existing centrality
             network_preparation.clean_node_file(scenario)
@@ -74,5 +74,5 @@ if __name__ == '__main__':
 
     # save as new shapefile
     merged_geodf = gpd.GeoDataFrame(calculated_cent[0], geometry='geometry')
-    merged_geodf.to_file(path.join(centrality_path, 'nodes_centrality.shp'), driver='ESRI Shapefile')
-    print('Centrality saved:', path.join(centrality_path, 'nodes_centrality.shp'))
+    merged_geodf.to_file(path.join(DATA_DIR, SETTINGS['networks'][scenario]), driver='ESRI Shapefile')
+    print('Centrality saved:', path.join(DATA_DIR, SETTINGS['networks'][scenario]))
