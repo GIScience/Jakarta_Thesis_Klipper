@@ -15,27 +15,49 @@ amenities:
 population:
   data: 'input/population_2020.tif'
   extract: 'preprocessed/idn_ppp_2020_extract.tif'
-  fillnan: 'preprocessed/idn_ppp_2020_extract_fillnan.tif'
 
-# TODO: rename to accessed?
-reached:
-  normal: 'results/iso_normal.shp'
-  flooded: 'preprocessed/iso_pre_flooded.shp'
+isochrones:
+  path: 'results/isochrones'
+  normal: 'results/isochrones/iso_normal.shp'
+  pre_flooded: 'results/isochrones/pre_iso_flooded.shp'
+  flooded: 'results/isochrones/iso_flooded.shp'
 
 networks:
-  normal: 'results/normal/nodes_centrality.shp'
-  flooded: 'results/flooded/nodes_centrality.shp'
-  btwn_dif: 'results/flooded/nodes_btwn_dif.shp'
-  cls_dif: 'results/flooded/nodes_cls_dif.shp'
+  path: 'results/network'
+  normal: 'results/network/normal/nodes_centrality.shp'
+  flooded: 'results/network/flooded/nodes_centrality.shp'
+  btwn_dif: 'results/network/flooded/nodes_btwn_dif.shp'
+  cls_dif: 'results/network/flooded/nodes_cls_dif.shp'
+
+data_distribution:
+  grid: 'preprocessed/city_grid.shp'
+  health_location:
+    path: 'results/health_location'
+    normal: 'results/health_location/grid_hs_normal.shp'
+    flooded: 'results/health_location/grid_hs_flooded.shp'
+  bed_capacity:
+    path: 'results/bed_capacity'
+    normal: 'results/bed_capacity/grid_bed_normal.shp'
+    flooded: 'results/bed_capacity/grid_bed_flooded.shp'
+
+impact_access_path: 'results/impact_access'
+
+supply_demand:
+  path_results: 'results/supply_demand'
+  normal: 'supply_demand_normal.shp'
+  flooded: 'supply_demand_flooded.shp'
+  impact: 'supply_demand_impact.shp'
 
 # choose histogram bar color for the amount of provided flood layer (the first color visualizes the normal scenario):
 # https://www.w3schools.com/colors/colors_picker.asp
-bar_color: ['orange', '#3366ff']
+data_color:
+  normal: 'orange'
+  flooded: '#3366ff'
 
 # provide your openrouteservice api key (register for free: 'https://openrouteservice.org/dev/#/signup)
-ors_api_key: ''
+ors_api_key: ~
 
 amenity_osm_values: ['hospital','clinic']
-iso_range_values: [300, 600, 900, 1200, 1500, 1800]
+iso_range_values: [300, 600, 900, 1200, 1500, 1800]  # e.g., 300/60 = 5 min; 1800/60 = 30 min
 
 speed_limits: 'ma_jakarta/scripts/network/speed_limits.yaml'
