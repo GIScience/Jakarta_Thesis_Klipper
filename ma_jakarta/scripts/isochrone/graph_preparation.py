@@ -69,13 +69,15 @@ if __name__ == '__main__':
         network_graph_name = str(sys.argv[1])
     except IndexError:
         logging.error('Please provide an existing network graph name.')
+        sys.exit(1)
 
     if not path.exists(path.join(BASEDIR, 'ma_jakarta/openrouteservice/docker/data', network_graph_name + '.osm.pbf')):
         ORSGraphPrep(network_graph_name).convert()
     else:
         print(network_graph_name + '.osm.pbf already exists.')
 
-    # adjust docker-compose.yml: OSM_FILE and volumes
-    # make sure there exists no docker/graph folder.
-    # If rename to e.g. graphs_floodprone to keep data. ORS builds graph from "graphs" folder
-    # in folder openrouteservice/docker: docker-compose up -d
+    print('Perform next steps manually: \n'
+          '1. Adjust docker-compose.yml: OSM_FILE and volumes \n'
+          '2. Make sure there exists no docker/graph folder. \n'
+          '3. If rename to e.g. graphs_normal to keep data. ORS builds graph from "graphs" folder '
+          'in folder openrouteservice/docker: docker-compose up -d')
