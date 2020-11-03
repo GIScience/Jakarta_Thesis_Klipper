@@ -46,7 +46,7 @@ if __name__ == '__main__':
             print('Directory', graph_path, 'created')
 
             # intersect normal graph with flood layer
-            complete_graph = nx.read_shp(path.join(NETWORK_DIR, scenario)).copy()
+            complete_graph = nx.read_shp(path.join(NETWORK_DIR, 'normal')).copy()
             network_preparation.remove_flood_data(complete_graph, graph_path)
             # clean graph from existing centrality
             network_preparation.clean_node_file(scenario)
