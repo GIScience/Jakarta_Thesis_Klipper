@@ -2,39 +2,41 @@
 
 ## Installation
 
-- `git clone https://github.com/GIScience/Jakarta_Thesis_Klipper.git`
+- Clone git repository: `git clone https://github.com/GIScience/Jakarta_Thesis_Klipper.git`
 
 - `cd Jakarta_Thesis_Klipper`
 
-#### Conda
+### [Conda](https://docs.conda.io/en/latest/)
 
-- install e.g. [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
+- Install e.g. [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
 
-- create virtual environment `conda create --name jakarta_venv python=3.7`
+- Create virtual environment `conda create --name jakarta_venv python=3.7`
 
-- activate environment `conda activate jakarta_venv`
+- Activate environment `conda activate jakarta_venv`
 
-#### [poetry](https://python-poetry.org/docs/)
+### [Poetry](https://python-poetry.org/docs/)
 
-- install poetry:
+- Install poetry, e.g.:
 
 `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
 
 - To activate poetry command, run the following command: `source $HOME/.poetry/env`
 
-- To execute, run: `poetry install`
+- To install the for the application needed python packages, run: `poetry install`
 
-- Note: To additionally install GDAL properly, run:
+- To additionally install GDAL properly, run:
 
 `pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal" `
 
 
-#### [docker](https://pypi.org/project/docker/) 
+### [Docker](https://pypi.org/project/docker/) 
 
-- install docker
+- Install docker, eg: `pip install docker`
 
 
-## Data input
+## Input data
+
+The input data must be provided by the user. Please save the data in `ma_jakarta/data/input`. You can set the files names in `settings.yml`. Example data for the area of Heidelberg is provided, which you can use for testing.
 
 - `city border`: get it for instance from [overpass-turbo](https://overpass-turbo.eu/)
 
@@ -62,21 +64,24 @@ run:
 
 ### 2. Road network
 
-#### 2.1. Network data 
+#### 2.1. Download and preperation of network graph
+
 - To download network data, run either:
 
 `python ma_jakarta/scripts/network/download_network.py 'hd_border.shp' 'drive_service' 'normal' 'ma_jakarta/network_graphs'` 
+
 to download data for user provided `city_border.shp`, defined in `settings.yml` 
 (read more about it here: https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.core.graph_from_polygon)
 
 - or:
 
 `python ma_jakarta/scripts/network/download_network.py 'Jakarta, Indonesia' 'drive_service' 'normal' 'ma_jakarta/network_graphs'`
+
 (read more about it here: https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.core.graph_from_place)
 
 where:
 
-   `hd_border.shp` or `Jakarta, Indonesia`  defines the place area for the network data to download
+   `hd_border.shp` or `Jakarta, Indonesia`  defines the spatial area for the network data to download
 
    change `drive_service` to e.g. `walk`, `bike`, `drive`, `all`, `all_private` to change the type of the street network
 
@@ -85,12 +90,13 @@ where:
    `ma_jakarta/network_graphs`: the output's folder path 
 
 
-#### 2.2. calculate centrality (and flood network)
+#### 2.2. Network centrality (and creation of flood related network)
 
 - To calculate graph centrality, run:
 
 `python ma_jakarta/scripts/network/run_network.py scenario first_centrality [second_centrality]`
-if a flood related scenario is given the network will be first intersected with the flood layer and saved separately
+
+if a flood related scenario is given, the network will be first intersected with the flood layer and saved separately
 
 where: 
 
@@ -148,7 +154,7 @@ where:
    
    `health_location`: the spatial distribution of available health sites
 
-   `bed_capacity`: t he spatial distribution of available health beds -> This option is only available if respective data for each 
+   `bed_capacity`: the spatial distribution of available health beds -> This option is only available if respective data for each 
    health site is provided. If this is the case, please make sure, that the data column is named `cap_int` for the amount 
    of available capacity.
 
@@ -169,7 +175,7 @@ where:
 
 - `mv ma_jakarta/app.config.sample ma_jakarta/openrouteservice/docker/app.config.sample`
 
-##### Build local openrouteservice graph 
+##### Build local openrouteservice instance
 
 - To create the for the routing graph needed OSM file based on the network graph data, run:  
 
@@ -185,28 +191,30 @@ where:
 (located in `openrouteservice/docker/data/`) to change osm file in `OSM_FILE` and `volumes` -> e.g. 
 `OSM_FILE: ./docker/data/heidelberg.osm.gz` to `OSM_FILE: ./docker/data/normal.osm.pbf`
 
-    - make sure there is no `docker/graph` folder existing. If, rename to e.g. `graphs_normal` to keep data. ORS builds graph from "graphs" folder. 
+   - make sure there is no `docker/graph` folder existing. If, rename to, e.g., `graphs_normal` to keep data. Openrouteservice builds graph from `graphs` folder. 
 To rename graph, run: 
 
 `mv ma_jakarta/openrouteservice/docker/graphs ma_jakarta/openrouteservice/docker/graphs_normal`
 
     - `cd ma_jakarta/openrouteservice/docker`
 
-    - `docker-compose up -d`
+   - To build openrouteservice graph, run:
+    
+`docker-compose up -d`
 
 It takes a bit to build the graph, even if the script has finished successfully. The graph is built when the `graphs` folder includes 
 the subgraphs `vehicles-car` and `vehicles-hgv`, which include files like `edges`, `geometry`, `location_index`.  
 (If graph is not created properly, run: `docker-compose up -d --build`)
 
-- Note: If your are not changing the routing graph to the flooded scenario, you will request the isochrones on the 
-normal scenario, which means you will you the reduced number of not flooded health locations but on all streets within the city.
-But, during the flood scenario, some streets are flooded and consequently not passable.  
+Note: If your are not changing the routing graph to the flooded scenario, you will request the isochrones on the 
+normal scenario, which means you will use the reduced number of not flooded health locations but on all streets within the city.
+However, during the flood scenario, some streets are flooded and consequently not passable.  
 
 ##### Request isochrones
 
 First register for free for a valid [openrouteservice](https://openrouteservice.org/dev/#/signup) API key and provide it in `settings.yml` > `ors_api_key`.
 
-Define the isochrone time ranges in `settings.yml` > `iso_range_values`, default: `iso_range_values: [300, 600, 900, 1200, 1500, 1800`. 
+Define the isochrone time ranges in `settings.yml` > `iso_range_values`, default: `iso_range_values: [300, 600, 900, 1200, 1500, 1800]`. 
 The time values are defined in seconds.  
 
 - To request the isochrones, run: 
@@ -218,7 +226,7 @@ where:
    `scenario`: scenario name, e.g., `normal` or `flooded` 
 
 Note: For the flooded scenario two output files will be created: `pre_flooded` -> only the isochorones and
-`flooded` -> flooded areas within isochrones, which were created due to simplification
+`flooded` -> flooded areas within isochrones, which were created due to simplification,
 and data outside the city border are removed. The `pre_flooded` is needed for the subsequent analysis step. 
 The flooded areas as well as the data spatially outside the city will be removed within the next steps. 
 
@@ -268,9 +276,9 @@ where:
 
 where: 
 
-   `stats` is the analysis step
+   `stats` implements the analysis step
 
-   `column_name` is the column you want to get insights about, e.g., `pop_area`
+   `column_name`: the column you want to get insights about, e.g., `pop_area`
 
    `percentile_value`, e.g., 95: get the 95th percentile
 
