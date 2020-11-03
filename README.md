@@ -1,57 +1,63 @@
-# Working process!
 
 
 ## Installation
 
 - `git clone https://github.com/GIScience/Jakarta_Thesis_Klipper.git`
 
-- `cd ma_jakarta`
+- `cd Jakarta_Thesis_Klipper`
 
 #### Conda
 
-- install e.g. miniconda3
+- install e.g. [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
 
 - create virtual environment `conda create --name jakarta_venv python=3.7`
 
 - activate environment `conda activate jakarta_venv`
 
-#### Install poetry: https://python-poetry.org/docs/
-- `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
+#### [poetry](https://python-poetry.org/docs/)
+
+- install poetry:
+
+`curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
 
 - To activate poetry command, run the following command: `source $HOME/.poetry/env`
 
-- `poetry install`
+- To execute, run: `poetry install`
 
--> problems with gdal installation 
+- Note: To additionally install GDAL properly, run:
+
+`pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal" `
 
 
-#### Install docker 
+#### [docker](https://pypi.org/project/docker/) 
+
+- install docker
 
 
 ## Data input
 
-- `city border`
+- `city border`: get it for instance from [overpass-turbo](https://overpass-turbo.eu/)
 
-- `healthsite amenities`
+- `healthsite amenities`: get it for instance from [overpass-turbo](https://overpass-turbo.eu/)
 
 - `flood data`
 
-- `populaiton raster`
+- `populaiton raster`: get it for instance from here: https://data.humdata.org/ 
 
 
 ## Run
 
-#### 1. Data preprocessing
+### 1. Data preprocessing
 To preprocess data run one of the following commands once. 
 
-If you are using HOT provided amenity data (download: https://drive.google.com/drive/folders/1azUAetAfVKHmkh8MdBnZv6owD-jzvBkd)
+- If you are using OSM data, downloaded from [overpass-turbo](https://overpass-turbo.eu/), run: 
+
+`python ma_jakarta/scripts/data_preprocessing/run_preprocessing.py`.
+
+- If you are using HOT provided amenity [data](https://drive.google.com/drive/folders/1azUAetAfVKHmkh8MdBnZv6owD-jzvBkd)
 run: 
 
 `python ma_jakarta/scripts/data_preprocessing/run_preprocessing.py HOT`.
-
-If you are using OSM data, downloaded from [overpass-turbo](https://overpass-turbo.eu/), run: 
-
-`python ma_jakarta/scripts/data_preprocessing/run_preprocessing.py`.
 
 
 ### 2. Road network
@@ -130,7 +136,7 @@ where:
 
 - To receive results regarding the spatial distribution of health locations and bed capacity, run: 
 
-`python ma_jakarta/scripts/health_supply/distribution_capacity.py scenario first_analysis_choice [second_analysis_choice]`
+`python ma_jakarta/scripts/analysis/health_distribution.py scenario first_analysis_choice [second_analysis_choice]`
 
 where:
  
@@ -142,7 +148,7 @@ where:
    
    `health_location`: the spatial distribution of available health sites
 
-   `bed_capacity` he spatial distribution of available health beds -> This option is only available if respective data for each 
+   `bed_capacity`: t he spatial distribution of available health beds -> This option is only available if respective data for each 
    health site is provided. If this is the case, please make sure, that the data column is named `cap_int` for the amount 
    of available capacity.
 
@@ -161,41 +167,51 @@ where:
 
 - `cd ../../`
 
-- `sudo mv ma_jakarta/app.config.sample ma_jakarta/openrouteservice/docker/app.config.sample`
+- `mv ma_jakarta/app.config.sample ma_jakarta/openrouteservice/docker/app.config.sample`
 
 ##### Build local openrouteservice graph 
 
-- `python ma_jakarta/scripts/ors/graph_preparation.py scenario`
+- To create the for the routing graph needed OSM file based on the network graph data, run:  
+
+`python ma_jakarta/scripts/isochrone/graph_preparation.py scenario`
 
 where: 
 
-   `scenario`: scenario name, e.g., `normal` or `flooded` 
+`scenario`: scenario name, e.g., `normal` or `flooded`
 
-- adjust `docker-compose.yml`: `OSM_FILE` and `volumes`
+- A few more steps to create the routing graph: 
 
-- make sure there is no `docker/graph` folder existing. If, rename to e.g. `graphs_floodprone` to keep data. ORS builds graph from "graphs" folder. 
+    - adjust `openrouteservice/docker/docker-compose.yml`: use the just created file 
+(located in `openrouteservice/docker/data/`) to change osm file in `OSM_FILE` and `volumes` -> e.g. 
+`OSM_FILE: ./docker/data/heidelberg.osm.gz` to `OSM_FILE: ./docker/data/normal.osm.pbf`
+
+    - make sure there is no `docker/graph` folder existing. If, rename to e.g. `graphs_normal` to keep data. ORS builds graph from "graphs" folder. 
 To rename graph, run: 
 
-`sudo mv ma_jakarta/openrouteservice/docker/graphs ma_jakarta/openrouteservice/docker/graphs_floodprone`
+`mv ma_jakarta/openrouteservice/docker/graphs ma_jakarta/openrouteservice/docker/graphs_normal`
 
-- `cd ma_jakarta/openrouteservice/docker`
+    - `cd ma_jakarta/openrouteservice/docker`
 
-- `docker-compose up -d`
+    - `docker-compose up -d`
 
 It takes a bit to build the graph, even if the script has finished successfully. The graph is built when the `graphs` folder includes 
 the subgraphs `vehicles-car` and `vehicles-hgv`, which include files like `edges`, `geometry`, `location_index`.  
 (If graph is not created properly, run: `docker-compose up -d --build`)
 
+- Note: If your are not changing the routing graph to the flooded scenario, you will request the isochrones on the 
+normal scenario, which means you will you the reduced number of not flooded health locations but on all streets within the city.
+But, during the flood scenario, some streets are flooded and consequently not passable.  
+
 ##### Request isochrones
 
 First register for free for a valid [openrouteservice](https://openrouteservice.org/dev/#/signup) API key and provide it in `settings.yml` > `ors_api_key`.
 
-Define the isochrone time ranges in `settings.yml` > `iso_range_values`, e.g., `iso_range_values = [300, 600, 900, 1200, 1500, 1800`. 
+Define the isochrone time ranges in `settings.yml` > `iso_range_values`, default: `iso_range_values: [300, 600, 900, 1200, 1500, 1800`. 
 The time values are defined in seconds.  
 
 - To request the isochrones, run: 
 
-`python ma_jakarta/scripts/ors/isochrone.py scenario`
+`python ma_jakarta/scripts/isochrone/isochrone.py scenario`
 
 where: 
 
@@ -209,7 +225,8 @@ The flooded areas as well as the data spatially outside the city will be removed
 
 ##### Impact access maps and histogram
 
-Define the health amenity types in `settings.yml` > `amenity_osm_values` for which you want to receive an output
+Define the health amenity types in `settings.yml` > `amenity_osm_values` for which you want to receive an output. 
+Default: `amenity_osm_values: ['hospital','clinic']`
 
 - To execute the calculation, run: 
 
@@ -269,12 +286,3 @@ where:
 - Poetry version 1.0.5
 
 - docker version 19.03.6-ce, build 369ce74a3c
-
-
-#### error handeling
-https://rasterio.readthedocs.io/en/latest/faq.html
-
-ERROR 4: Unable to open EPSG support file gcs.csv.  Try setting the GDAL_DATA environment variable to point to the directory containing EPSG csv files.
-ERROR:fiona._env:Unable to open EPSG support file gcs.csv.  Try setting the GDAL_DATA environment variable to point to the directory containing EPSG csv files.
-
-GDAL_DATA="/home/isabell/Workspace/test/ma/ma-jakarta/data/idn_ppp_2020.tif" 
