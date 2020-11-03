@@ -1,14 +1,6 @@
 # Flood Impact Assessment on Road Network and Healthcare Access
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 This application was developed for the thesis, provided in `MA_Klipper.pdf`.
-=======
-This application was developed for the thesis, provided in `MA_Klipper_3536373.pdf`.
->>>>>>> 15efac7... Update README.md
-=======
-This application was developed for the thesis, provided in `MA_Klipper.pdf`.
->>>>>>> 1092acf... Update README.md
 
 Successful access to healthcare depends, inter alia, on the existence of health locations with the specific care capacities. Furthermore, the available road network is important for the mobility-based accessibility, to actually reach the health site. This application can be used to analyse the road network and the accessibility to healthcare. Within the paper, the case scenario of Jakarta, Indonesia was examined, based on [OpenStreetMap](https://www.openstreetmap.org/about) and [HOT Indonesia](https://openstreetmap.id/en/) provided data. With the exception of flood data, all data and tools are open source and free of charge and can be downloaded for any location worldwide.
 
