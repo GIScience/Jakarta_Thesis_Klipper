@@ -1,4 +1,8 @@
+# Flood Impact Assessment on Road Network and Healthcare Access
 
+This application was developed for the thesis, provided in `MA_Klipper_3536373.pdf`.
+
+Successful access to healthcare depends, inter alia, on the existence of health locations with the specific care capacities. Furthermore, the available road network is important for the mobility-based accessibility, to actually reach the health site. This application can be used to analyse the road network and the accessibility to healthcare. Within the paper, the case scenario of Jakarta, Indonesia was examined, based on [OpenStreetMap](https://www.openstreetmap.org/about) and [HOT Indonesia](https://openstreetmap.id/en/) provided data. With the exception of flood data, all data and tools are open source and free of charge and can be downloaded for any location worldwide.
 
 ## Installation
 
@@ -106,6 +110,12 @@ where:
 
    `[second_centrality]`: optional second centrality name, e.g., `Betweenness` and `Closeness`
 
+
+Note: 
+
+- The network graph and each edge is weighted with the minimum needed and allowed car driving duration to receive insights about the fastest driving behavior.
+- Betweenness Centrality (BC): Based on shortest path calculation between two nodes, will be applied on every available node combination. Can be used to identify the freqency of each crossed road junction, based on car driving, fastest routing profile on all possible routes within the city. Road segments with a high BC value are important for fast and efficient traffic, but can pose the danger of congestion.
+- (Harmonic) Closeness Centrality (HC/CC): Based on shortest path calculation between two nodes, will be applied on every available node combination. Can be used to identify the locations within the city that are the fastest on average to be accessed. Those locations can be used as good supply points within the city.
 
 #### 2.3. Network resilience 
 
