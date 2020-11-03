@@ -21,6 +21,9 @@ if __name__ == '__main__':
     if not path.exists(path.join(DATA_DIR, 'preprocessed')):
         mkdir(path.join(DATA_DIR, 'preprocessed'))
 
+    if not path.exists(path.join(DATA_DIR, 'results')):
+        mkdir(path.join(DATA_DIR, 'results'))
+
     try:
         # city border
         city_border = gpd.read_file(path.join(DATA_DIR, SETTINGS['city_border']['input']))
