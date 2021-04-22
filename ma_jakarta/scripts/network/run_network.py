@@ -41,6 +41,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if scenario != 'normal':
+        print(scenario)
         if not path.exists(graph_path):
             mkdir(graph_path)
             print('Directory', graph_path, 'created')

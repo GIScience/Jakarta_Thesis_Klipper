@@ -55,7 +55,8 @@ data_color:
   flooded: '#3366ff'
 
 # provide your openrouteservice api key (register for free: 'https://openrouteservice.org/dev/#/signup)
-ors_api_key: ~
+ors_api_key: 3b
+
 
 amenity_osm_values: ['hospital','clinic']
 iso_range_values: [300, 600, 900, 1200, 1500, 1800]  # e.g., 300/60 = 5 min; 1800/60 = 30 min

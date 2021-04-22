@@ -236,11 +236,11 @@ if __name__ == '__main__':
     percentile_value_input = None
 
     try:
-        calculation_step = str(sys.argv[1])
+        analysis_part = str(sys.argv[1])
     except IndexError:
-        logging.error('Please provide a calculation_step, e.g., analysis or stats.')
+        logging.error('Please provide a analysis_part, e.g., analysis or stats.')
         sys.exit(1)
-
+    print(analysis_part)
     if analysis_part == 'analysis':
 
         try:
@@ -296,7 +296,7 @@ if __name__ == '__main__':
                   'saved')
 
     elif analysis_part == 'stats':
-
+        print(sys.argv[2])
         try:
             column_name_input = str(sys.argv[2])
         except IndexError:
