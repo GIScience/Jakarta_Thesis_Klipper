@@ -36,7 +36,12 @@ def add_capacity_data(scenario, amenity_type, range_value):
     data_merged = pd.merge(hs_hosp, iso_hosp_value, on='amenity_id')
     data_merged = data_merged.rename({"geometry_y": "geometry"}, axis=1)
 
-    data_selected = data_merged[['geometry', 'amenity_id', 'cap_int']]
+    if 'cap_int' in data_merged.columns:
+        data_selected = data_merged[['geometry', 'amenity_id', 'cap_int']]
+    else:
+        print("Information: ma_jakarta.scripts.analysis.supply_demand analysis.add_capacity_data: no capacity data present.\nIf available needs to be present in field cap_int. Assiging 0 to cap_int.")
+        data_selected = data_merged[['geometry', 'amenity_id']]
+        data_selected.insert(2, 'cap_int', 0,  True)
 
     return data_selected
 

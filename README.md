@@ -60,7 +60,7 @@ To preprocess data run one of the following commands once.
 
 - If you are using OSM data, downloaded from [overpass-turbo](https://overpass-turbo.eu/), run:
 
-`python -m ma_jakarta.scripts.data_preprocessing.run_preprocessing`.
+`python -m ma_jakarta.scripts.data_preprocessing.run_preprocessing`
 
 - If you are using HOT provided amenity [data](https://drive.google.com/drive/folders/1azUAetAfVKHmkh8MdBnZv6owD-jzvBkd)
 run:
@@ -82,7 +82,7 @@ to download data for user provided `city_border.shp`, defined in `settings.yml`
 
 - or:
 
-`python -m ma_jakarta.scripts.network.download_network.py 'Jakarta, Indonesia' 'drive_service' 'normal' 'ma_jakarta/network_graphs'`
+`python -m ma_jakarta.scripts.network.download_network 'Jakarta, Indonesia' 'drive_service' 'normal' 'ma_jakarta/network_graphs'`
 
 (read more about it here: https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.core.graph_from_place)
 
@@ -224,6 +224,9 @@ Note: If your are not changing the routing graph to the flooded scenario, you wi
 normal scenario, which means you will use the reduced number of not flooded health locations but on all streets within the city.
 However, during the flood scenario, some streets are flooded and consequently not passable.  
 
+Afterwards please return to the parent directory:
+`cd ../../../`
+
 ##### Request isochrones
 The scripts require an API key (`settings.yml` > `ors_api_key`) - however, since a local ORS instance is used any key provided is fine.
 
@@ -284,6 +287,8 @@ where:
    `time_range`: the isochrone duration value -> default `300` -> a small value is recommended since differences
    in local accessibility can be better identified on a small scale
 
+If no field cap_int (bed capacity) is found in the amenity data set you will be informed that this information is missing and the field will be created and filled with zeros.
+
 - To get insights about the data, run:
 
 `python -m ma_jakarta.scripts.analysis.supply_demand stats column_name percentile_value`
@@ -296,6 +301,7 @@ where:
 
    `percentile_value`, e.g., 95: get the 95th percentile
 
+You need to run the previous supply_demand analysis script for both the normal and the flood scenraio
 
 ### This API was tested:
 
