@@ -157,11 +157,20 @@ if __name__ == '__main__':
         logging.error('Please provide one scenario name, defined in settings.yml > networks, e.g. normal or flooded')
         sys.exit(1)
 
+    if len(sys.argv) <=2:
+        logging.error('Not sufficient arguments provided - needed is a scenario and an analysis choice (health_location or bed_capacity).')
+        sys.exit(1)
     try:
         hs_analysis_list.append(str(sys.argv[2]))
-
+        if not str(sys.argv[2]) in ['health_location', 'bed_capacity']:
+            logging.error('First analysis calculation has to be specified as either health_location or bed_capacity.')
+            sys.exit(1)
         try:
             hs_analysis_list.append(str(sys.argv[3]))
+            if not str(sys.argv[3]) in ['health_location', 'bed_capacity']:
+                logging.error(
+                    'Second analysis calculation has to be specified as either health_location or bed_capacity.')
+                sys.exit(1)
         except IndexError:
             pass
     except KeyError:

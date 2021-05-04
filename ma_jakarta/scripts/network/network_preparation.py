@@ -80,14 +80,13 @@ def create_weighted_graph(nx_graph):
     """
     # convert to weighted and directed NetworKit graph
     nkit_graph = nkit.nxadapter.nx2nk(nx_graph)
-    nkit_edges = nkit_graph.edges()
+
     graph_weighted_directed = nkit.Graph(nkit_graph.numberOfNodes(), weighted=True, directed=True)
 
     # openrouteservice yaml file with defined speed limits for each road type
     speed_limit = safe_load(open(path.join(BASEDIR, SETTINGS['speed_limits'])))
 
-    for edge, highway, length in zip(nkit_edges, [w[2] for w in nx_graph.edges.data('highway')],
-                                     [float(w[2]) for w in nx_graph.edges.data('length')]):
+    for edge, highway, length in zip(nkit_graph.iterEdges(), [w[2] for w in nx_graph.edges.data('highway')], [float(w[2]) for w in nx_graph.edges.data('length')]):
         try:
             if '[' in highway:
                 # in some cases two road types are defined for one road -> take the first one
